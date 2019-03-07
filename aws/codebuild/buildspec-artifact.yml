@@ -36,7 +36,13 @@ phases:
   post_build:
     commands:
       - echo Entered the Post-Build phase and generating release artifact to jFrog on `date`...
-      - echo ${SSH_KEY} > ~/.ssh/id_rsa
+      - echo ${SSH_KEY} > id_rsa
+      - eval $(ssh-agent -s)
+      - chown 600 id_rsa
+      - ssh-add id_rsa
+      - mkdir -p ~/.ssh
+      - touch ~/.ssh/known_hosts
+      - ssh-keyscan -t rsa git-codecommit.us-east-1.amazonaws.com >> ~/.ssh/known_hosts
       - git config --global user.email "ci-boot@alveesrenan-dev.com.br"
       - git config --global user.name "CI BootRobot Release"
       - git checkout ${CI_COMMIT_REF_NAME}
@@ -49,6 +55,6 @@ artifacts:
     - target/kubernetes-hpa-custom.jar
   discard-paths: yes
 
-#cache:
-#  paths:
-#    - './.m2'
+cache:
+  paths:
+    - './.m2'
