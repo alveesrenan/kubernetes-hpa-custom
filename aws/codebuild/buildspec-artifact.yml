@@ -1,0 +1,46 @@
+version: 0.2
+
+env:
+  variables:
+    SETTINGS_PATH: settings.xml
+    SONARQUBE_URL: https://sonar-b2b.atech.com.br/sonarqube
+    ARTIFACTORY_URL: https://artifactory-b2b.atech.com.br/artifactory
+  parameter_store:
+    SONARQUBE_LOGIN: "SONARQUBE_LOGIN"
+    SONARQUBE_PASSWORD: "SONARQUBE_PASSWORD"
+    RELEASE_SCM_USER: "RELEASE_SCM_USER"
+    RELEASE_SCM_TOKEN: "RELEASE_SCM_TOKEN"
+
+phases:
+
+  install:
+    commands:
+      - echo Entered the install phase and compile dependencies from project on `date`...
+      - mvn -B compile -s $SETTINGS_PATH
+
+  pre_build:
+    commands:
+      - echo Pre-build started and running tests from project on `date`...
+      - mvn -B verify -s $SETTINGS_PATH
+
+  build:
+    commands:
+      - echo Build started and generating fat-jar from project on `date`...
+      - mvn clean install -B -s $SETTINGS_PATH -DskipTests
+    finally:
+      - echo Generating quality code on sonarqube...
+      - mvn sonar:sonar -Dsonar.url=$SONARQUBE_URL -Dsonar.login=$SONARQUBE_LOGIN -Dsonar.password=$SONARQUBE_PASSWORD -B -s $SETTINGS_PATH
+
+  post_build:
+    commands:
+      - echo Entered the Post-Build phase and generating release artifact to jFrog on `date`...
+      - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=$ARTIFACTORY_URL" -Drelease.scm.user=$RELEASE_SCM_USER -Drelease.scm.token=$RELEASE_SCM_TOKEN -s $SETTINGS_PATH
+
+artifacts:
+  files:
+    - target/kubernetes-hpa-custom.jar
+  discard-paths: yes
+
+cache:
+  paths:
+    - './.m2'

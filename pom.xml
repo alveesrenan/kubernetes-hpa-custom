@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>br.com.alveesrenan.demos</groupId>
 	<artifactId>kubernetes-hpa-custom</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>kubernetes-hpa-custom</name>
-	<description>Demo project for Spring Boot</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -15,10 +15,36 @@
 		<relativePath/>
 	</parent>
 
+	<scm>
+		<connection>scm:git:https://${release.scm.user}:${release.scm.token}@git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom.git</connection>
+		<url>scm:git:https://${release.scm.user}:${release.scm.token}@git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom.git</url>
+		<developerConnection>scm:git:https://${release.scm.user}:${release.scm.token}@git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
 	<properties>
+		<!-- Configuration dependencies -->
+		<sonar.url>https://sonar-b2b.atech.com.br/sonarqube</sonar.url>
+		<artifactory.url>https://artifactory-b2b.atech.com.br/artifactory</artifactory.url>
+
+		<!-- General dependencies -->
 		<java.version>1.8</java.version>
 		<lombok.version>1.16.14</lombok.version>
+		<jacoco.version>0.7.9</jacoco.version>
 	</properties>
+
+	<distributionManagement>
+		<repository>
+			<id>nexus-releases</id>
+			<name>Atech Nexus Releases</name>
+			<url>${artifactory.url}/libs-release-local</url>
+		</repository>
+		<snapshotRepository>
+			<id>nexus-snapshots</id>
+			<name>Atech Nexus Snapshots</name>
+			<url>${artifactory.url}/libs-snapshot-local</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<dependencies>
 
@@ -62,6 +88,72 @@
 
 	</dependencies>
 
+	<profiles>
+		<profile>
+			<id>sonar</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.jacoco</groupId>
+							<artifactId>jacoco-maven-plugin</artifactId>
+							<version>${jacoco.version}</version>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<configuration>
+							<append>true</append>
+						</configuration>
+						<executions>
+							<execution>
+								<id>agent-for-ut</id>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>agent-for-it</id>
+								<goals>
+									<goal>prepare-agent-integration</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>jacoco-site</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>report</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+
+			<properties>
+				<sonar.scm.provider>git</sonar.scm.provider>
+				<sonar.language>java</sonar.language>
+				<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+				<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+				<sonar.host.url>${sonar.url}</sonar.host.url>
+				<sonar.coverage.exclusions>
+					**br.com.alveesrenan.demos.kuberneteshpacustom/**/configs/**,
+					**br.com.alveesrenan.demos.kuberneteshpacustom/**/props/**
+				</sonar.coverage.exclusions>
+				<sonar.exclusions>
+					**br.com.alveesrenan.demos.kuberneteshpacustom/**/**Application.java
+				</sonar.exclusions>
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -77,6 +169,31 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+
+			<!-- integration test -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.12</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- maven release plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+				<configuration>
+					<tagNameFormat>v@{project.version}</tagNameFormat>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
