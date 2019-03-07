@@ -49,6 +49,6 @@ artifacts:
     - target/kubernetes-hpa-custom.jar
   discard-paths: yes
 
-cache:
-  paths:
-    - './.m2'
+#cache:
+#  paths:
+#    - './.m2'
