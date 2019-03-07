@@ -6,10 +6,10 @@ env:
     SONARQUBE_URL: https://sonar-b2b.atech.com.br/sonarqube
     ARTIFACTORY_URL: https://artifactory-b2b.atech.com.br/artifactory
   parameter-store:
-    SONARQUBE_LOGIN: "SONARQUBE_LOGIN"
-    SONARQUBE_PASSWORD: "SONARQUBE_PASSWORD"
-    RELEASE_SCM_USER: "RELEASE_SCM_USER"
-    RELEASE_SCM_TOKEN: "RELEASE_SCM_TOKEN"
+    SONARQUBE_LOGIN: "prod-sonarqube-login"
+    SONARQUBE_PASSWORD: "prod-sonarqube-password"
+    RELEASE_SCM_USER: "prod-release-scm-user"
+    RELEASE_SCM_TOKEN: "prod-release-scm-token"
 
 phases:
 
