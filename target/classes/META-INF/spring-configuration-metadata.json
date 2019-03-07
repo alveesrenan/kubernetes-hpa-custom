@@ -1,0 +1,27 @@
+{
+  "groups": [
+    {
+      "name": "amqp.queue",
+      "type": "br.com.alveesrenan.demos.kuberneteshpacustom.etl.amqp.configs.props.ProcessorQueueProperties",
+      "sourceType": "br.com.alveesrenan.demos.kuberneteshpacustom.etl.amqp.configs.props.ProcessorQueueProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "amqp.queue.exchange",
+      "type": "java.lang.String",
+      "sourceType": "br.com.alveesrenan.demos.kuberneteshpacustom.etl.amqp.configs.props.ProcessorQueueProperties"
+    },
+    {
+      "name": "amqp.queue.name",
+      "type": "java.lang.String",
+      "sourceType": "br.com.alveesrenan.demos.kuberneteshpacustom.etl.amqp.configs.props.ProcessorQueueProperties"
+    },
+    {
+      "name": "amqp.queue.routing-key",
+      "type": "java.lang.String",
+      "sourceType": "br.com.alveesrenan.demos.kuberneteshpacustom.etl.amqp.configs.props.ProcessorQueueProperties"
+    }
+  ],
+  "hints": []
+}

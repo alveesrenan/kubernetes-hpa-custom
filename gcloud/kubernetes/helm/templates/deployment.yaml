@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "decoder-acars.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    release: {{ .Release.Name }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "decoder-acars.name" . }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 3
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: {{ template "decoder-acars.name" . }}
+        track: stable
+    spec:
+      containers:
+        - name: {{ .Values.deployment.name }}
+          image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              hostPort: {{ .Values.deployment.hostPort }}
+              containerPort: {{ .Values.deployment.containerPort }}
+{{ include "decoder-acars.probes" .    | indent 10 }}
+{{ include "decoder-acars.envs" .      | indent 10 }}
+{{ include "decoder-acars.resources" . | indent 10 }}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecrets }}

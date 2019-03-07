@@ -1,0 +1,13 @@
+image:
+  name: gcr.io/ahead-pro/decoder-acars
+  tag: master
+  pullPolicy: Always
+  pullSecrets: aheadpro-key
+deployment:
+  name: decoder-acars
+  hostPort: 8181
+  containerPort: 8080
+service:
+  name: decoder-acars
+  port: 8181
+  targetPort: 8181

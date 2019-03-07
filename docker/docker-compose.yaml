@@ -1,0 +1,22 @@
+version: "2"
+
+services:
+
+  kubernetes-hpa-custom:
+    image: renaalve/kubernetes-hpa-custom
+    container_name: kubernetes-hpa-custom
+    ports:
+      - "8080:8080"
+    networks:
+      - development_development-network
+    environment:
+      PROFILE: prod
+      RABBITMQ_HOST: e2-broker
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+    mem_limit: 268435456
+    mem_reservation: 67108864
+
+networks:
+  development_development-network:
+    external: true

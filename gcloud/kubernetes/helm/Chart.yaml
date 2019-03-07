@@ -1,0 +1,13 @@
+apiVersion: v1
+name: decoder-acars
+version: 0.1.0
+description: A Helm chart for AHEADPRO DECODER ACARS project.
+keywords:
+ - AHEADPRO-E2
+ - DECODER-ACARS
+home: https://gitlab-b2b.atech.com.br/ahead/ahp-e2/decoder-acars.git
+sources:
+ - https://gcr.io/ahead-pro/decoder-acars:master
+maintainers:
+ - name: Renan Alves
+   email: ralves@atech.com.br 
