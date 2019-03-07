@@ -1,10 +1,9 @@
 {
   "family": "service-kubernetes-hpa-custom",
-  "taskRoleArn": "arn:aws:iam::503622861177:role/ECSTaskRoleForAcars",
   "containerDefinitions": [
     {
-      "name": "decoder-acars",
-      "image": "503622861177.dkr.ecr.sa-east-1.amazonaws.com/decoder-acars",
+      "name": "kubernetes-hpa-custom",
+      "image": "006223355744.dkr.ecr.us-east-1.amazonaws.com/kubernetes-hpa-custom",
       "cpu": 0,
       "memory": 384,
       "portMappings": [
@@ -21,57 +20,52 @@
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "kubernetes-hpa-custom-logs"
         }
-      }
+      },
+      "links": [
+        "rabbitmq-broker"
+      ],
       "environment": [
-        {
-          "name": "DISCOVERY_PORT",
-          "value": "8500"
-        },
         {
           "name": "PROFILE",
           "value": "prod"
         },
         {
-          "name": "MESSAGING_QUEUE_NAME",
-          "value": "decoder-acars-processor"
+          "name": "RABBITMQ_HOST",
+          "value": "rabbitmq-broker"
         },
         {
-          "name": "LDI_URL",
-          "value": "http://ldi-service"
+          "name": "RABBITMQ_USER",
+          "value": "guest"
         },
         {
-          "name": "SPRING_DATASOURCE_PASSWORD",
-          "value": "123456"
-        },
-        {
-          "name": "SPRING_DATASOURCE_URL",
-          "value": "jdbc:postgresql://ahpapidb.csno4zzuco71.sa-east-1.rds.amazonaws.com/decoder_acars"
-        },
-        {
-          "name": "MESSAGING_QUEUE_HOSTNAME",
-          "value": "https://sqs.sa-east-1.amazonaws.com/503622861177"
-        },
-        {
-          "name": "SPRING_DATASOURCE_USERNAME",
-          "value": "decoder_acars"
-        },
-        {
-          "name": "BUCKETEER_BUCKET_NAME",
-          "value": "aheadpro-acars-file"
-        },
-        {
-          "name": "DISCOVERY_HOST",
-          "value": "http://internal-ahp-internal-lb-20148387.sa-east-1.elb.amazonaws.com"
-        },
-        {
-          "name": "JAVA_ENV",
-          "value": "prod"
-        },
-        {
-          "name": "LOG_LEVEL",
-          "value": "WARN"
+          "name": "RABBITMQ_PASS",
+          "value": "guest"
         }
       ]
+    },
+    {
+      "name": "rabbitmq-broker",
+      "image": "rabbitmq:3-management-alpine",
+      "cpu": 0,
+      "memory": 256,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5672,
+          "hostPort": 5672
+        },
+        {
+          "containerPort": 15672,
+          "hostPort": 15672
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "rabbitmq-broker-logs",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "rabbitmq-broker-logs"
+        }
     }
   ]
 }
