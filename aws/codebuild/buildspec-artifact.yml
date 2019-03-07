@@ -18,20 +18,20 @@ phases:
   install:
     commands:
       - echo Entered the install phase and compile dependencies from project on `date`...
-      - mvn -B compile -s ${SETTINGS_PATH}
+      - mvn -B compile
 
   pre_build:
     commands:
       - echo Pre-build started and running tests from project on `date`...
-      - mvn -B verify -s ${SETTINGS_PATH}
+      - mvn -B verify
 
   build:
     commands:
       - echo Build started and generating fat-jar from project on `date`...
-      - mvn clean package -B -s ${SETTINGS_PATH} -DskipTests
+      - mvn clean package -B -DskipTests
     finally:
       - echo Generating quality code on sonarqube...
-      - mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B -s ${SETTINGS_PATH}
+      - mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B
 
   post_build:
     commands:
@@ -42,7 +42,7 @@ phases:
       - git checkout ${CI_COMMIT_REF_NAME}
       - git reset --hard origin/${CI_COMMIT_REF_NAME}
     finally:
-      - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN} -s ${SETTINGS_PATH}
+      - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN}
 
 artifacts:
   files:
