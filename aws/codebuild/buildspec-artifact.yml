@@ -7,6 +7,7 @@ env:
     ARTIFACTORY_URL: https://artifactory-b2b.atech.com.br/artifactory
     CI_COMMIT_REF_NAME: master
   parameter-store:
+    SSH_KEY: "prod-ssh-key"
     SONARQUBE_LOGIN: "prod-sonarqube-login"
     SONARQUBE_PASSWORD: "prod-sonarqube-password"
     RELEASE_SCM_USER: "prod-release-scm-user"
@@ -35,6 +36,7 @@ phases:
   post_build:
     commands:
       - echo Entered the Post-Build phase and generating release artifact to jFrog on `date`...
+      - echo ${SSH_KEY} > ~/.ssh/id_rsa
       - git config --global user.email "ci-boot@alveesrenan-dev.com.br"
       - git config --global user.name "CI BootRobot Release"
       - git checkout ${CI_COMMIT_REF_NAME}
