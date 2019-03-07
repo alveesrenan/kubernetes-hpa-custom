@@ -5,7 +5,7 @@ env:
     SETTINGS_PATH: settings.xml
     SONARQUBE_URL: https://sonar-b2b.atech.com.br/sonarqube
     ARTIFACTORY_URL: https://artifactory-b2b.atech.com.br/artifactory
-  parameter_store:
+  parameter-store:
     SONARQUBE_LOGIN: "SONARQUBE_LOGIN"
     SONARQUBE_PASSWORD: "SONARQUBE_PASSWORD"
     RELEASE_SCM_USER: "RELEASE_SCM_USER"
@@ -15,7 +15,6 @@ phases:
 
   install:
     commands:
-      - echo ${SONARQUBE_LOGIN}
       - echo Entered the install phase and compile dependencies from project on `date`...
       - mvn -B compile -s ${SETTINGS_PATH}
 
