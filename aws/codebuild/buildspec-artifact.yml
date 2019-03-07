@@ -23,7 +23,7 @@ phases:
   pre_build:
     commands:
       - echo Pre-build started and running tests from project on `date`...
-      - mvn -B verify -s ${SETTINGS_PATH}
+      - mvn -B verify -s ${SETTINGS_PATH} -DskipTests
 
   build:
     commands:
