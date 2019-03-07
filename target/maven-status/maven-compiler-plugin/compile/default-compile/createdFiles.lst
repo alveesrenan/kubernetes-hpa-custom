@@ -1,7 +1,0 @@
-br/com/alveesrenan/demos/kuberneteshpacustom/etl/amqp/ProcessorConsumer.class
-META-INF/spring-configuration-metadata.json
-br/com/alveesrenan/demos/kuberneteshpacustom/rest/controllers/MemoryAllocationRestController.class
-br/com/alveesrenan/demos/kuberneteshpacustom/services/MemoryAllocationService.class
-br/com/alveesrenan/demos/kuberneteshpacustom/etl/amqp/configs/props/ProcessorQueueProperties.class
-br/com/alveesrenan/demos/kuberneteshpacustom/KubernetesHpaCustomApplication.class
-br/com/alveesrenan/demos/kuberneteshpacustom/etl/amqp/configs/ProcessorConfiguration.class

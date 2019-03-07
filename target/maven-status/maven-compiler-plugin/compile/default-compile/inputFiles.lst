@@ -1,6 +1,0 @@
-/home/alveesrenan/Documents/study/aws/certified-developer-associate/8. developers-theory/kubernetes-hpa-custom/src/main/java/br/com/alveesrenan/demos/kuberneteshpacustom/etl/amqp/configs/props/ProcessorQueueProperties.java
-/home/alveesrenan/Documents/study/aws/certified-developer-associate/8. developers-theory/kubernetes-hpa-custom/src/main/java/br/com/alveesrenan/demos/kuberneteshpacustom/services/MemoryAllocationService.java
-/home/alveesrenan/Documents/study/aws/certified-developer-associate/8. developers-theory/kubernetes-hpa-custom/src/main/java/br/com/alveesrenan/demos/kuberneteshpacustom/rest/controllers/MemoryAllocationRestController.java
-/home/alveesrenan/Documents/study/aws/certified-developer-associate/8. developers-theory/kubernetes-hpa-custom/src/main/java/br/com/alveesrenan/demos/kuberneteshpacustom/etl/amqp/ProcessorConsumer.java
-/home/alveesrenan/Documents/study/aws/certified-developer-associate/8. developers-theory/kubernetes-hpa-custom/src/main/java/br/com/alveesrenan/demos/kuberneteshpacustom/etl/amqp/configs/ProcessorConfiguration.java
-/home/alveesrenan/Documents/study/aws/certified-developer-associate/8. developers-theory/kubernetes-hpa-custom/src/main/java/br/com/alveesrenan/demos/kuberneteshpacustom/KubernetesHpaCustomApplication.java
