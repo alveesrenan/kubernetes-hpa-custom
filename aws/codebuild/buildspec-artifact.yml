@@ -5,6 +5,7 @@ env:
     SETTINGS_PATH: settings.xml
     SONARQUBE_URL: https://sonar-b2b.atech.com.br/sonarqube
     ARTIFACTORY_URL: https://artifactory-b2b.atech.com.br/artifactory
+    CI_COMMIT_REF_NAME: master
   parameter-store:
     SONARQUBE_LOGIN: "prod-sonarqube-login"
     SONARQUBE_PASSWORD: "prod-sonarqube-password"
@@ -34,6 +35,11 @@ phases:
   post_build:
     commands:
       - echo Entered the Post-Build phase and generating release artifact to jFrog on `date`...
+      - git config --global user.email "ci-boot@alveesrenan-dev.com.br"
+      - git config --global user.name "CI BootRobot Release"
+      - git checkout ${CI_COMMIT_REF_NAME}
+      - git reset --hard origin/${CI_COMMIT_REF_NAME}
+    finally:
       - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN} -s ${SETTINGS_PATH}
 
 artifacts:
