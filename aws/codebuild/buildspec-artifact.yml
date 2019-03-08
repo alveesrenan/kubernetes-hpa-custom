@@ -12,6 +12,8 @@ env:
     SSH_CONFIG: "prod-ssh-config"
     SONARQUBE_LOGIN: "prod-sonarqube-login"
     SONARQUBE_PASSWORD: "prod-sonarqube-password"
+    RELEASE_SCM_USER: "prod-release-scm-user"
+    RELEASE_SCM_TOKEN: "prod-release-scm-token"
 
 phases:
 

@@ -17,7 +17,7 @@
 	<scm>
 		<connection>scm:git:ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom.git</connection>
 		<developerConnection>scm:git:ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom.git</developerConnection>
-		<url>scm:git:ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom.git</url>
+		<url>https://${release.scm.user}:${release.scm.token}@git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom</url>
 		<tag>HEAD</tag>
 	</scm>
 
@@ -25,7 +25,6 @@
 		<!-- Configuration dependencies -->
 		<sonar.url>https://sonar-b2b.atech.com.br/sonarqube</sonar.url>
 		<artifactory.url>https://artifactory-b2b.atech.com.br/artifactory</artifactory.url>
-
 
 		<!-- General dependencies -->
 		<java.version>1.8</java.version>
