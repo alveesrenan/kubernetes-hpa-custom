@@ -44,9 +44,9 @@ phases:
       - touch ~/.ssh/known_hosts
       - ssh-keyscan -t rsa git-codecommit.us-east-1.amazonaws.com >> ~/.ssh/known_hosts
       - ssh git-codecommit.us-east-1.amazonaws.com
+    finally:
       - git checkout ${CI_COMMIT_REF_NAME}
       - git reset --hard origin/${CI_COMMIT_REF_NAME}
-    finally:
       - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN} -s ${SETTINGS_PATH}
 
 artifacts:
