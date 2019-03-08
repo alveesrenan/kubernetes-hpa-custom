@@ -7,14 +7,8 @@ env:
     ARTIFACTORY_URL: https://artifactory-b2b.atech.com.br/artifactory
     CI_COMMIT_REF_NAME: master
   parameter-store:
-    SSH_KEY_ID: "prod-ssh-key-id"
-    SSH_KEY: "prod-ssh-key"
-    SSH_PUB_KEY: "prod-ssh-key.pub"
-    SSH_CONFIG: "prod-ssh-config"
     SONARQUBE_LOGIN: "prod-sonarqube-login"
     SONARQUBE_PASSWORD: "prod-sonarqube-password"
-    RELEASE_SCM_USER: "prod-release-scm-user"
-    RELEASE_SCM_TOKEN: "prod-release-scm-token"
 
 phases:
 
@@ -50,7 +44,7 @@ phases:
       - git checkout ${CI_COMMIT_REF_NAME}
       - git reset --hard origin/${CI_COMMIT_REF_NAME}
     finally:
-      - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -Dssh.key.id=${SSH_KEY_ID} -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN} -s ${SETTINGS_PATH}
+      - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -s ${SETTINGS_PATH}
 
 artifacts:
   files:
