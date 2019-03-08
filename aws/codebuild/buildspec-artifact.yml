@@ -41,7 +41,7 @@ phases:
       - echo ${SSH_CONFIG} > config && chmod 600 config
       - mkdir -p ~/.ssh
       - touch ~/.ssh/known_hosts
-      - mv id_rsa ~/.ssh/ && mv config ~/.ssh/
+      - mv id_rsa ~/.ssh/ && mv config ~/.ssh/ && cd ~/.ssh
       - eval $(ssh-agent -s)
       - ssh-add id_rsa
       - ssh-keyscan -t rsa git-codecommit.us-east-1.amazonaws.com >> ~/.ssh/known_hosts
