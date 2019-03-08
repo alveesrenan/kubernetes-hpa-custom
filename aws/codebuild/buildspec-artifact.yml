@@ -8,6 +8,7 @@ env:
     CI_COMMIT_REF_NAME: master
   parameter-store:
     SSH_KEY: "prod-ssh-key"
+    SSH_CONFIG: "prod-ssh-config"
     SONARQUBE_LOGIN: "prod-sonarqube-login"
     SONARQUBE_PASSWORD: "prod-sonarqube-password"
     RELEASE_SCM_USER: "prod-release-scm-user"
@@ -36,15 +37,16 @@ phases:
   post_build:
     commands:
       - echo Entered the Post-Build phase and generating release artifact to jFrog on `date`...
-      - echo ${SSH_KEY} > id_rsa
-      - eval $(ssh-agent -s)
-      - chown 600 id_rsa
-      - ssh-add id_rsa
+      - echo ${SSH_KEY} > id_rsa && chown 600 id_rsa
+      - echo ${SSH_CONFIG} > config && chmod 600 config
       - mkdir -p ~/.ssh
       - touch ~/.ssh/known_hosts
+      - mv id_rsa ~/.ssh/ && mv config ~/.ssh/
+      - eval $(ssh-agent -s)
+      - ssh-add id_rsa
       - ssh-keyscan -t rsa git-codecommit.us-east-1.amazonaws.com >> ~/.ssh/known_hosts
-      - git config --global user.email "ci-boot@alveesrenan-dev.com.br"
-      - git config --global user.name "CI BootRobot Release"
+      - git config --global user.email "alveeesrenan-cicd@alveesrenan-dev.com.br"
+      - git config --global user.name "CI Boot Release"
       - git checkout ${CI_COMMIT_REF_NAME}
       - git reset --hard origin/${CI_COMMIT_REF_NAME}
     finally:
