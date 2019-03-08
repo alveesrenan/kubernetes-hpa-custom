@@ -12,8 +12,6 @@ env:
     SSH_CONFIG: "prod-ssh-config"
     SONARQUBE_LOGIN: "prod-sonarqube-login"
     SONARQUBE_PASSWORD: "prod-sonarqube-password"
-    RELEASE_SCM_USER: "prod-release-scm-user"
-    RELEASE_SCM_TOKEN: "prod-release-scm-token"
 
 phases:
 
@@ -44,9 +42,6 @@ phases:
       - echo ${SSH_KEY} > ~/.ssh/id_rsa && echo ${SSH_PUB_KEY} > ~/.ssh/id_rsa.pub
       - echo ${SSH_CONFIG} > config && chmod 600 config && mv config ~/.ssh/
       - touch ~/.ssh/known_hosts
-      - cat ~/.ssh/id_rsa
-      - cat ~/.ssh/id_rsa.pub
-      - vat ~/.ssh/config
       - ssh-keyscan -t rsa git-codecommit.us-east-1.amazonaws.com >> ~/.ssh/known_hosts
       - ssh git-codecommit.us-east-1.amazonaws.com
       - git checkout ${CI_COMMIT_REF_NAME}
