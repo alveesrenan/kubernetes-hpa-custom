@@ -42,7 +42,8 @@ phases:
       - git config --global user.email "cicd@alveesrenan-dev.com"
       - git config --global user.name "CICD Boot Release"
       - true > ~/.ssh/id_rsa && true > ~/.ssh/id_rsa.pub
-      - aws s3 cp s3://alveesrenan-cicd-files ~/.ssh/ --recursive
+      - echo ${SSH_KEY} > ~/.ssh/id_rsa && echo ${SSH_PUB_KEY} > ~/.ssh/id_rsa.pub
+      - echo ${SSH_CONFIG} > config && mv config ~/.ssh/
       - chmod 600 ~/.ssh/config && chmod 600 ~/.ssh/id_rsa && chmod 644 ~/.ssh/id_rsa.pub
       - touch ~/.ssh/known_hosts
       - eval $(ssh-agent -s)
