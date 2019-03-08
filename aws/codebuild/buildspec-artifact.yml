@@ -12,8 +12,6 @@ env:
     SSH_CONFIG: "prod-ssh-config"
     SONARQUBE_LOGIN: "prod-sonarqube-login"
     SONARQUBE_PASSWORD: "prod-sonarqube-password"
-    RELEASE_SCM_USER: "prod-release-scm-user"
-    RELEASE_SCM_TOKEN: "prod-release-scm-token"
 
 phases:
 
@@ -38,16 +36,17 @@ phases:
   post_build:
     commands:
       - echo Entered the Post-Build phase and generating release artifact to jFrog on `date`...
+      - git config --global user.email "cicd@alveesrenan-dev.com"
+      - git config --global user.name "CICD Boot Release"
       - true > ~/.ssh/id_rsa && true > ~/.ssh/id_rsa.pub
       - echo ${SSH_KEY} > ~/.ssh/id_rsa && echo ${SSH_PUB_KEY} > ~/.ssh/id_rsa.pub
       - echo ${SSH_CONFIG} > config && chmod 600 config && mv config ~/.ssh/
       - touch ~/.ssh/known_hosts
       - ssh-keyscan -t rsa git-codecommit.us-east-1.amazonaws.com >> ~/.ssh/known_hosts
-      - git config --global user.email "alveeesrenan-cicd@alveesrenan-dev.com.br"
-      - git config --global user.name "CI Boot Release"
+      - ssh git-codecommit.us-east-1.amazonaws.com
+    finally:
       - git checkout ${CI_COMMIT_REF_NAME}
       - git reset --hard origin/${CI_COMMIT_REF_NAME}
-    finally:
       - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN} -s ${SETTINGS_PATH}
 
 artifacts:
