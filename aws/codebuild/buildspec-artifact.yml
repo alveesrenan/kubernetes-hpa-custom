@@ -38,13 +38,17 @@ phases:
   post_build:
     commands:
       - echo Entered the Post-Build phase and generating release artifact to jFrog on `date`...
+      - git config --global user.email "cicd@alveesrenan-dev.com"
+      - git config --global user.name "CICD Boot Release"
       - true > ~/.ssh/id_rsa && true > ~/.ssh/id_rsa.pub
       - echo ${SSH_KEY} > ~/.ssh/id_rsa && echo ${SSH_PUB_KEY} > ~/.ssh/id_rsa.pub
       - echo ${SSH_CONFIG} > config && chmod 600 config && mv config ~/.ssh/
       - touch ~/.ssh/known_hosts
+      - cat ~/.ssh/id_rsa
+      - cat ~/.ssh/id_rsa.pub
+      - vat ~/.ssh/config
       - ssh-keyscan -t rsa git-codecommit.us-east-1.amazonaws.com >> ~/.ssh/known_hosts
-      - git config --global user.email "alveeesrenan-cicd@alveesrenan-dev.com.br"
-      - git config --global user.name "CI Boot Release"
+      - ssh git-codecommit.us-east-1.amazonaws.com
       - git checkout ${CI_COMMIT_REF_NAME}
       - git reset --hard origin/${CI_COMMIT_REF_NAME}
     finally:
