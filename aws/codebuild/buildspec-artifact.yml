@@ -38,7 +38,7 @@ phases:
     commands:
       - echo Entered the Post-Build phase and generating release artifact to jFrog on `date`...
       - mkdir -p ~/.ssh
-      - echo ${SSH_KEY} > id_rsa && mv id_rsa ~/.ssh/
+      - echo ${SSH_KEY} > id_rsa && chmod 400 id_rsa && mv id_rsa ~/.ssh/
       - echo ${SSH_CONFIG} > config && chmod 600 config && mv config ~/.ssh/
       - touch ~/.ssh/known_hosts
       - cat ~/.ssh/id_rsa
