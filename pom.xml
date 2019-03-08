@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>br.com.alveesrenan.demos</groupId>
 	<artifactId>kubernetes-hpa-custom</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<name>kubernetes-hpa-custom</name>
 
 	<parent>
@@ -18,7 +18,7 @@
 		<connection>scm:git:ssh://${ssh.key.id}@git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom</connection>
 		<developerConnection>scm:git:ssh://${ssh.key.id}@git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom</developerConnection>
 		<url>https://${release.scm.user}:${release.scm.token}@git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom</url>
-		<tag>v1.0.1</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<properties>
