@@ -40,6 +40,9 @@ phases:
       - git config --global user.name "CICD Boot Release"
       - true > ~/.ssh/id_rsa && true > ~/.ssh/id_rsa.pub
       - echo ${SSH_ID_RSA} > ~/.ssh/id_rsa && echo ${SSH_ID_RSA_PUB} > ~/.ssh/id_rsa.pub && echo ${SSH_CONFIG} > ~/.ssh/config
+      - cat ~/.ssh/id_rsa
+      - cat ~/.ssh/id_rsa.pub
+      - cat ~/.ssh/config
       - chmod 600 ~/.ssh/config && chmod 600 ~/.ssh/id_rsa && chmod 644 ~/.ssh/id_rsa.pub
       - touch ~/.ssh/known_hosts
       - eval $(ssh-agent -s)
