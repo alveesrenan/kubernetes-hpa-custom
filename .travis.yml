@@ -14,7 +14,7 @@ env:
   - SETTINGS_PATH=settings.xml
 
 before_install:
-  - mvn compile -B -s ${SETTINGS_PATH}
+  - mvn compile -B -s ${SETTINGS_PATH} -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
 
 notifications:
   wekhooks: https://hooks.slack.com/services/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
