@@ -14,12 +14,12 @@
 		<relativePath />
 	</parent>
 
-	<scm>
-		<connection>scm:git:ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom</connection>
-		<developerConnection>scm:git:ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom</developerConnection>
-		<url>https://git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom</url>
-		<tag>HEAD</tag>
-	</scm>
+    <scm>
+        <connection>scm:git:ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom</connection>
+        <developerConnection>scm:git:ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom</developerConnection>
+        <url>https://git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom</url>
+        <tag>HEAD</tag>
+    </scm>
 
 	<properties>
 		<!-- Configuration dependencies -->
@@ -30,6 +30,7 @@
 		<java.version>1.8</java.version>
 		<lombok.version>1.16.14</lombok.version>
 		<jacoco.version>0.7.9</jacoco.version>
+        <swagger.version>2.9.2</swagger.version>
 	</properties>
 
 	<distributionManagement>
@@ -78,6 +79,30 @@
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.4</version>
+		</dependency>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-schema</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
 
 	</dependencies>
 

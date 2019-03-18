@@ -16,3 +16,7 @@ tmp/
 
 /* Maven */
 .m2/
+
+/* VSCODE */
+.vscode/
+.factorypath

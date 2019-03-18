@@ -1,0 +1,21 @@
+language: java
+
+jdk:
+  - oraclejdk8
+
+cache:
+  directories:
+    - ./.m2
+
+services:
+  - docker
+
+env:
+  - SETTINGS_PATH=settings.xml
+
+before_install:
+  - mvn compile -B -s ${SETTINGS_PATH}
+
+notifications:
+  wekhooks: https://hooks.slack.com/services/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
+  email: false
