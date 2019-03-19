@@ -15,9 +15,9 @@
 	</parent>
 
     <scm>
-        <connection>scm:git:ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom</connection>
-        <developerConnection>scm:git:ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom</developerConnection>
-        <url>https://git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom</url>
+        <connection>scm:git:https://${release.scm.user}:${release.scm.token}@github.com/alveesrenan/kubernetes-hpa-custom.git</connection>
+        <developerConnection>scm:git:https://${release.scm.user}:${release.scm.token}@github.com/alveesrenan/kubernetes-hpa-custom.git</developerConnection>
+        <url>https://github.com/alveesrenan/kubernetes-hpa-custom</url>
         <tag>HEAD</tag>
     </scm>
 

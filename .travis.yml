@@ -19,10 +19,6 @@ cache:
   directories:
     - $HOME/.m2
 
-before_install:
-  - pip install --user awscli
-  - export PATH=$PATH:$HOME/.local/bin
-
 env:
   - SETTINGS_PATH=settings.xml
   - CONTAINER_REPOSITORY_URL=006223355744.dkr.ecr.us-east-1.amazonaws.com
@@ -46,13 +42,16 @@ jobs:
 
     - stage: quality-code
       script:
-        - mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B
+        - mvn sonar:sonar -Dmaven.wagon.http.ssl.insecure=true -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B
 
     - stage: build
       services:
         - docker
+      before_install:
+        - pip install --user awscli
+        - export PATH=$PATH:$HOME/.local/bin
       script:
-        - mvn clean package -B -DskipTests -s ${SETTINGS_PATH}
+        - mvn clean package -B -DskipTests
       before_deploy:
         - if [[ "$TRAVIS_BRANCH" == "master" ]]; then TAG=latest; fi;
         - TAG=$(echo "$TRAVIS_BRANCH" | sed 's/\//\-/g')
@@ -63,7 +62,7 @@ jobs:
 
     - stage: snapshot
       script:
-         - mvn deploy -B -DskipTests -Dartifactory.url=${ARTIFACTORY_URL} -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN}
+         - mvn deploy -Dmaven.wagon.http.ssl.insecure=true -B -DskipTests -Dartifactory.url=${ARTIFACTORY_URL} -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN}
 
     - stage: release
       before_script:
@@ -72,7 +71,7 @@ jobs:
         - git checkout ${TRAVIS_BRANCH}
         - git reset --hard origin/${TRAVIS_BRANCH}
       script:
-        - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}"
+        - mvn release:clean release:prepare release:perform -B -Dmaven.wagon.http.ssl.insecure=true -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN}
 
 notifications:
   webhooks: https://hooks.slack.com/services/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
