@@ -12,8 +12,10 @@ stages:
     if: branch != master
   - name: release
     if: branch = master
-  - name: deploy
-  - name: deploy-verify
+  - name: deploy-ecs
+    if: branch = master
+  - name: deploy-kubernetes
+    if: branch = master
 
 cache:
   directories:
@@ -23,6 +25,9 @@ env:
   - SETTINGS_PATH=settings.xml
   - CONTAINER_REPOSITORY_URL=006223355744.dkr.ecr.us-east-1.amazonaws.com
   - IMAGE_NAME=kubernetes-hpa-custom
+  - ECS_CLUSTER_NAME=alveesrenan-dev-backbone-cluster
+  - ECS_TASK_DEFINITION_NAME=kubernetes-hpa-custom-task-definition
+  - ECS_SERVICE_NAME=kubernetes-hpa-custom-service
 
 jobs:
   include:
@@ -42,7 +47,7 @@ jobs:
 
     - stage: quality-code
       script:
-        - mvn sonar:sonar -Dmaven.wagon.http.ssl.insecure=true -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B
+        - mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B
 
     - stage: build
       services:
@@ -59,10 +64,12 @@ jobs:
       deploy:
         - docker build -f docker/Dockerfile -t ${CONTAINER_REPOSITORY_URL}/${IMAGE_NAME}:${TAG} .
         - docker push ${CONTAINER_REPOSITORY_URL}/${IMAGE_NAME}:${TAG}
+      before_deploy:
+        - touch image-version.txt && echo ${IMAGE_NAME}:${TAG} > image-version.txt
 
     - stage: snapshot
       script:
-         - mvn deploy -Dmaven.wagon.http.ssl.insecure=true -B -DskipTests -Dartifactory.url=${ARTIFACTORY_URL} -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN}
+         - mvn deploy -B -DskipTests -Dartifactory.url=${ARTIFACTORY_URL} -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN}
 
     - stage: release
       before_script:
@@ -72,6 +79,18 @@ jobs:
         - git reset --hard origin/${TRAVIS_BRANCH}
       script:
         - mvn release:clean release:prepare release:perform -B -Dmaven.wagon.http.ssl.insecure=true -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN}
+
+    - stage: deploy-ecs
+      before_install:
+        - sudo apt-get install -y jq
+      script:
+        - IMAGE_VERSION=$(cat image-version.txt)
+        - TEMP_TASK_DEFINITION=$(jq '.containerDefinitions[0].image = $IMAGE_VERSION' --arg IMAGE_VERSION $IMAGE_VERSION aws/ecs/task-definition-prod.json)
+        - echo $TEMP_TASK_DEFINITION > aws/task-definition-prod.json
+        - REVISION_VERSION=$(aws ecs register-task-definition --region us-east-1 --cli-input-json file://aws/task-definition-prod.json | jq '.taskDefinition.revision')
+        - TASK_DEFINITION_REVISION=${ECS_TASK_DEFINITION_NAME}:${REVISION_VERSION}
+      deploy:
+        - aws ecs update-service --cluster ${ECS_CLUSTER_NAME} --service ${ECS_SERVICE_NAME} --task-definition ${TASK_DEFINITION_REVISION} --force-new-deployment --region ${AWS_REGION}
 
 notifications:
   webhooks: https://hooks.slack.com/services/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
