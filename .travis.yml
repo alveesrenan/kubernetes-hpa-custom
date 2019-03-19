@@ -12,39 +12,45 @@ stages:
     if: branch != master
   - name: release
     if: branch = master
+  - name: deploy
+  - name: deploy-verify
 
 cache:
   directories:
     - $HOME/.m2
+
+before_install:
+  - pip install --user awscli
+  - export PATH=$PATH:$HOME/.local/bin
 
 env:
   - SETTINGS_PATH=settings.xml
   - CONTAINER_REPOSITORY_URL=006223355744.dkr.ecr.us-east-1.amazonaws.com
   - IMAGE_NAME=kubernetes-hpa-custom
 
-services:
-  - docker
-  - rabbitmq
-  - postgresql
-
 jobs:
   include:
     - stage: compile
       script:
-        - mvn compile -B -s ${SETTINGS_PATH}
+        - mvn compile -B
 
     - stage: tests
+      services:
+        - rabbitmq
+        - postgresql
       before_script:
         - psql -c "CREATE USER database_development WITH PASSWORD '123456' NOCREATEDB;" -U postgres
         - psql -c "CREATE DATABASE database_development OWNER database_development;" -U postgres
       script:
-        - mvn verify -B -s ${SETTINGS_PATH}
+        - mvn verify -B
 
     - stage: quality-code
       script:
-        - mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B -s ${SETTINGS_PATH}
+        - mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B
 
     - stage: build
+      services:
+        - docker
       script:
         - mvn clean package -B -DskipTests -s ${SETTINGS_PATH}
       before_deploy:
@@ -54,12 +60,10 @@ jobs:
       deploy:
         - docker build -f docker/Dockerfile -t ${CONTAINER_REPOSITORY_URL}/${IMAGE_NAME}:${TAG} .
         - docker push ${CONTAINER_REPOSITORY_URL}/${IMAGE_NAME}:${TAG}
-      after_deploy:
-        - touch image-version.txt && echo ${IMAGE_NAME}:${TAG} > image-version.txt
 
     - stage: snapshot
       script:
-         - mvn deploy -B -DskipTests -Dartifactory.url=${ARTIFACTORY_URL} -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN} -s ${SETTINGS_PATH}
+         - mvn deploy -B -DskipTests -Dartifactory.url=${ARTIFACTORY_URL} -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN}
 
     - stage: release
       before_script:
@@ -68,7 +72,7 @@ jobs:
         - git checkout ${TRAVIS_BRANCH}
         - git reset --hard origin/${TRAVIS_BRANCH}
       script:
-        - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -s ${SETTINGS_PATH}
+        - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}"
 
 notifications:
   webhooks: https://hooks.slack.com/services/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
