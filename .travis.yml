@@ -55,16 +55,15 @@ jobs:
       before_install:
         - pip install --user awscli
         - export PATH=$PATH:$HOME/.local/bin
-      script:
-        - mvn clean package -B -DskipTests
-      before_deploy:
+      before_script:
         - if [[ "$TRAVIS_BRANCH" == "master" ]]; then TAG=latest; fi;
         - TAG=$(echo "$TRAVIS_BRANCH" | sed 's/\//\-/g')
         - $(aws ecr get-login --no-include-email --region us-east-1)
-      deploy:
+      script:
+        - mvn clean package -B -DskipTests
         - docker build -f docker/Dockerfile -t ${CONTAINER_REPOSITORY_URL}/${IMAGE_NAME}:${TAG} .
         - docker push ${CONTAINER_REPOSITORY_URL}/${IMAGE_NAME}:${TAG}
-      before_deploy:
+      before_script:
         - touch image-version.txt && echo ${IMAGE_NAME}:${TAG} > image-version.txt
 
     - stage: snapshot
@@ -89,7 +88,6 @@ jobs:
         - echo $TEMP_TASK_DEFINITION > aws/task-definition-prod.json
         - REVISION_VERSION=$(aws ecs register-task-definition --region us-east-1 --cli-input-json file://aws/task-definition-prod.json | jq '.taskDefinition.revision')
         - TASK_DEFINITION_REVISION=${ECS_TASK_DEFINITION_NAME}:${REVISION_VERSION}
-      deploy:
         - aws ecs update-service --cluster ${ECS_CLUSTER_NAME} --service ${ECS_SERVICE_NAME} --task-definition ${TASK_DEFINITION_REVISION} --force-new-deployment --region ${AWS_REGION}
 
 notifications:
