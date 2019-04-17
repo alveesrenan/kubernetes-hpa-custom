@@ -1,6 +1,8 @@
 FROM fabric8/java-jboss-openjdk8-jdk
 
-ADD target/kubernetes-hpa-custom.jar /
+ARG JAR_FILE
+
+ADD ${JAR_FILE} /kubernetes-hpa-custom.jar
 
 EXPOSE 8080
 
