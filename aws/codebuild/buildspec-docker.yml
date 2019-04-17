@@ -3,9 +3,8 @@ version: 0.2
 env:
   variables:
     PROJECT_NAME: kubernetes-hpa-custom
-    REPOSITORY_URI: 006223355744.dkr.ecr.us-east-1.amazonaws.com/${PROJECT_NAME}
+    REPOSITORY_URI: 006223355744.dkr.ecr.us-east-1.amazonaws.com/kubernetes-hpa-custom
     IMAGE_TAG: latest
-    REPOSITORY_IMAGE_NAME: ${REPOSITORY_URI}:${IMAGE_TAG}
 
 phases:
 
@@ -17,8 +16,8 @@ phases:
   build:
     commands:
       - echo Build started and building Docker image on `date`
-      - docker build --build-arg JAR_FILE=kubernetes-hpa-custom.jar -t ${REPOSITORY_IMAGE_NAME} .
-      - docker push ${REPOSITORY_IMAGE_NAME}
+      - docker build --build-arg JAR_FILE=kubernetes-hpa-custom.jar -t ${REPOSITORY_URI}:${IMAGE_TAG} .
+      - docker push ${REPOSITORY_URI}:${IMAGE_TAG}
 
   post_build:
     commands:
