@@ -16,8 +16,8 @@ phases:
   build:
     commands:
       - echo Build started and building Docker image on `date`
-      - docker build --build-arg JAR_FILE=kubernetes-hpa-custom.jar -t ${REPOSITORY_URI}:${IMAGE_TAG} .
-      - docker push ${REPOSITORY_URI}:${IMAGE_TAG}
+      - docker build --build-arg JAR_FILE=kubernetes-hpa-custom.jar -t $REPOSITORY_URI:$IMAGE_TAG .
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
 
   post_build:
     commands:
