@@ -35,6 +35,7 @@ phases:
       - echo Entered the Post-Build phase and generating release artifact to jFrog on `date`...
       - git config --global user.email "cicd@alveesrenan-dev.com"
       - git config --global user.name "CICD Boot Release"
+      - sudo rm -rf .git && git init && git remote add origin ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/kubernetes-hpa-custom
       - aws s3 cp s3://alveesrenan-cicd-files . --recursive
       - aws kms decrypt --ciphertext-blob fileb://config --output text --query Plaintext | base64 --decode > ~/.ssh/config
       - aws kms decrypt --ciphertext-blob fileb://id_rsa --output text --query Plaintext | base64 --decode > ~/.ssh/id_rsa
