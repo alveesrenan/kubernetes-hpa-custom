@@ -26,9 +26,9 @@ phases:
     commands:
       - echo Build started and generating fat-jar from project on `date`...
       - mvn clean package -B -s ${SETTINGS_PATH} -DskipTests
-    finally:
-      - echo Generating quality code on sonarqube...
-      - mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B -s ${SETTINGS_PATH}
+#    finally:
+#      - echo Generating quality code on sonarqube...
+#      - mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B -s ${SETTINGS_PATH}
 
 #  post_build:
 #    commands:
