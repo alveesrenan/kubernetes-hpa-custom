@@ -1,0 +1,22 @@
+target/
+*.logs
+tmp/
+
+/* IntelliJ */
+.idea
+*.iml
+
+/* Eclipse */
+.settings/
+.project
+.classpath
+
+/* Project */
+**/entities/mappers/*Impl.java
+
+/* Maven */
+.m2/
+
+/* VSCODE */
+.vscode/
+.factorypath
