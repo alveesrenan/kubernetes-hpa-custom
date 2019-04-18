@@ -11,7 +11,7 @@ phases:
   pre_build:
     commands:
       - echo Installing some packages to run on this build step on `date`
-      - apt-get install -y jq yq
+      - apt-get install -y jq
 
   build:
     commands:
