@@ -1,5 +1,8 @@
 {
   "family": "service-kubernetes-hpa-custom",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
   "containerDefinitions": [
     {
       "name": "kubernetes-hpa-custom",
