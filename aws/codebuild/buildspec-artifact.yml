@@ -54,7 +54,7 @@ artifacts:
     - docker/Dockerfile
     - aws/ecs/task-definition.json
     - aws/codebuild/buildspec-docker.yml
-    - aws/codedeploy/appspec.yml
+    - aws/codedeploy/appspec.json
   discard-paths: yes
 
 cache:
