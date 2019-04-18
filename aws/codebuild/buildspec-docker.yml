@@ -20,7 +20,7 @@ phases:
       - $(aws ecr get-login --region us-east-1 --no-include-email)
       - docker build --build-arg JAR_FILE=kubernetes-hpa-custom.jar -t $REPOSITORY_URI:$IMAGE_TAG .
       - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - touch image-version.txt && echo ${IMAGE_NAME}:${TAG} > image-version.txt
+      - touch image-version.txt && echo $REPOSITORY_URI:$IMAGE_TAG > image-version.txt
 
   post_build:
     commands:
@@ -28,9 +28,7 @@ phases:
       - IMAGE_VERSION=$(cat image-version.txt)
       - TASK_DEFINITION=$(jq '.containerDefinitions[0].image = $IMAGE_VERSION' --arg IMAGE_VERSION $IMAGE_VERSION task-definition.json)
       - echo $TASK_DEFINITION > task-definition.json
-      - Generating new version of task-definition.json file to ECS on `date`
       - TASK_DEFINITION_ARN=$(aws ecs register-task-definition --region us-east-1 --cli-input-json file://task-definition.json | jq '.taskDefinition.taskDefinitionArn')
-      - echo Generating new version of appspec.yml to CodeDeploy on `date`
       - echo $(jq '.Resources[0].TargetService.Properties.TaskDefinition = $TASK_DEFINITION_ARN' --arg TASK_DEFINITION_ARN $TASK_DEFINITION_ARN appspec.json) > appspec.json
 
 artifacts:
