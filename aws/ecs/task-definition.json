@@ -66,6 +66,7 @@
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "rabbitmq-broker-logs"
         }
+      }
     }
   ]
 }

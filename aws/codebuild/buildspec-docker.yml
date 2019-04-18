@@ -2,7 +2,8 @@ version: 0.2
 
 env:
   variables:
-    REPOSITORY_URI: 006223355744.dkr.ecr.us-east-1.amazonaws.com/acloudguru-ecr-webapp
+    PROJECT_NAME: kubernetes-hpa-custom
+    REPOSITORY_URI: 006223355744.dkr.ecr.us-east-1.amazonaws.com/kubernetes-hpa-custom
     IMAGE_TAG: latest
 
 phases:
@@ -15,11 +16,10 @@ phases:
   build:
     commands:
       - echo Build started and building Docker image on `date`
-      - docker build -t $REPOSITORY_URI:latest .
-      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+      - docker build --build-arg JAR_FILE=kubernetes-hpa-custom.jar -t $REPOSITORY_URI:$IMAGE_TAG .
       - docker push $REPOSITORY_URI:$IMAGE_TAG
 
   post_build:
     commands:
       - echo Post Build started and generating new task definition on `date`
-      - aws ecs register-task-definition --region us-east-1 --cli-input-json file://aws/ecs/task-definition.json
+      - aws ecs register-task-definition --region us-east-1 --cli-input-json file://task-definition.json

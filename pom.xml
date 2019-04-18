@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>br.com.alveesrenan.demos</groupId>
 	<artifactId>kubernetes-hpa-custom</artifactId>
-	<version>1.0.5-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>kubernetes-hpa-custom</name>
 
 	<parent>
