@@ -51,7 +51,7 @@ phases:
 artifacts:
   files:
     - target/kubernetes-hpa-custom.jar
-    - docker/Dockerfile
+    - Dockerfile
     - aws/ecs/task-definition.json
     - aws/codebuild/buildspec-docker.yml
     - aws/codedeploy/appspec.json
