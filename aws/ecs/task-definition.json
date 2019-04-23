@@ -1,5 +1,9 @@
 {
   "family": "service-kubernetes-hpa-custom",
+  "executionRoleArn": "arn:aws:iam::006223355744:role/ecsTaskExecutionRole",
+  "cpu": "256",
+  "memory": "512",
+  "networkMode": "awsvpc",
   "requiresCompatibilities": [
     "FARGATE"
   ],
@@ -24,9 +28,6 @@
           "awslogs-stream-prefix": "kubernetes-hpa-custom-logs"
         }
       },
-      "links": [
-        "rabbitmq-broker"
-      ],
       "environment": [
         {
           "name": "PROFILE",
