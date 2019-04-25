@@ -1,6 +1,8 @@
 FROM openjdk:8-jre-alpine
 
-ADD target/kubernetes-hpa-custom.jar /app.jar
+ARG JAR_FILE
+
+COPY ${JAR_FILE} /app.jar
 
 EXPOSE 8080
 
