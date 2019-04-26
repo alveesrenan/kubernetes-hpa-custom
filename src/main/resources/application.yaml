@@ -1,12 +1,8 @@
-server.port: 8080
+server.port: 80
 
 spring:
   application.name: kubernetes-hpa-custom
   profiles.active: ${PROFILE:local}
-  rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
-    username: ${RABBITMQ_USER:guest}
-    password: ${RABBITMQ_PASS:guest}
 
 management:
   metrics:
@@ -16,9 +12,3 @@ management:
     web:
       exposure:
         include: ["health", "info", "metrics", "prometheus"]
-
-amqp:
-  queue:
-    name: kubernetes-hpa-queue
-    exchange: kubernetes-hpa-exchange
-    routingKey: kubernetes-hpa
