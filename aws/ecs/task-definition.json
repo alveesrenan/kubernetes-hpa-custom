@@ -21,9 +21,6 @@
           "awslogs-stream-prefix": "kubernetes-hpa-custom-logs"
         }
       },
-      "links": [
-        "rabbitmq-broker"
-      ],
       "environment": [
         {
           "name": "PROFILE",
@@ -42,31 +39,6 @@
           "value": "guest"
         }
       ]
-    },
-    {
-      "name": "rabbitmq-broker",
-      "image": "rabbitmq:3-management-alpine",
-      "cpu": 0,
-      "memory": 128,
-      "essential": true,
-      "portMappings": [
-        {
-          "containerPort": 5672,
-          "hostPort": 5672
-        },
-        {
-          "containerPort": 15672,
-          "hostPort": 15672
-        }
-      ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "rabbitmq-broker-logs",
-          "awslogs-region": "us-east-1",
-          "awslogs-stream-prefix": "rabbitmq-broker-logs"
-        }
-      }
     }
   ]
 }
