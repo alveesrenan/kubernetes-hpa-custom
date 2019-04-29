@@ -29,9 +29,11 @@ phases:
       - TASK_DEFINITION=$(jq '.containerDefinitions[0].image = $IMAGE_VERSION' --arg IMAGE_VERSION $IMAGE_VERSION task-definition.json)
       - echo $TASK_DEFINITION > task-definition.json
       - TASK_DEFINITION_ARN=$(aws ecs register-task-definition --region us-east-1 --cli-input-json file://task-definition.json | jq '.taskDefinition.taskDefinitionArn')
+      - TASK_DEFINITION_ARN=$(echo $TASK_DEFINITION_ARN | sed -e 's/\"//g')
       - echo $(jq '.Resources[0].TargetService.Properties.TaskDefinition = $TASK_DEFINITION_ARN' --arg TASK_DEFINITION_ARN $TASK_DEFINITION_ARN appspec.json) > appspec.json
 
 artifacts:
   files:
     - appspec.json
+    - task-definition.json
   discard-paths: yes

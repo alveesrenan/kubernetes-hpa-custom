@@ -4,10 +4,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class FooController {
+public class VersionController {
 
     @GetMapping("/version")
     public String currentVersion() {
-        return "Version 2 from project.";
+        return "Version 5 from project.";
     }
 }

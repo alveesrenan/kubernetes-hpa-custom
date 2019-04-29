@@ -5,10 +5,10 @@
       "TargetService": {
         "Type": "AWS::ECS::Service",
         "Properties": {
-          "TaskDefinition": "arn:aws:ecs:us-east-1:006223355744:task-definition/service-kubernetes-hpa-custom:14",
+          "TaskDefinition": "arn:aws:ecs:us-east-1:006223355744:task-definition/service-kubernetes-hpa-custom:17",
           "LoadBalancerInfo": {
             "ContainerName": "kubernetes-hpa-custom",
-            "ContainerPort": 8080
+            "ContainerPort": 80
           },
           "PlatformVersion": "LATEST",
           "NetworkConfiguration": {
@@ -20,7 +20,7 @@
               "SecurityGroups": [
                 "sg-0719528fe95d3dbf1"
               ],
-              "AssignPublicIp": "ENABLED"
+              "AssignPublicIp": "DISABLED"
             }
           }
         }
