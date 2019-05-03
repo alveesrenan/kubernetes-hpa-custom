@@ -1,0 +1,42 @@
+{
+  "AWSEBDockerrunVersion": "2",
+  "containerDefinitions": [
+    {
+      "name": "kubernetes-hpa-custom",
+      "image": "006223355744.dkr.ecr.us-east-1.amazonaws.com/kubernetes-hpa-custom",
+      "environment": [
+        {
+          "name": "PROFILE",
+          "value": "local"
+        }
+      ],
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        }
+      ],
+      "links": [
+        "rabbitmq"
+      ],
+      "essential": true,
+      "memory": 256
+    },
+    {
+      "name": "rabbitmq",
+      "image": "rabbitmq:3-management-alpine",
+      "essential": true,
+      "memory": 128,
+      "portMappings": [
+        {
+          "containerPort": 5672,
+          "hostPort": 5672
+        },
+        {
+          "containerPort": 15672,
+          "hostPort": 15672
+        }
+      ]
+    }
+  ]
+}
