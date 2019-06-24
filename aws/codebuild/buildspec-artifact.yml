@@ -51,6 +51,10 @@ phases:
 artifacts:
   files:
     - target/kubernetes-hpa-custom.jar
+    - Dockerfile
+    - aws/ecs/task-definition.json
+    - aws/codebuild/buildspec-docker.yml
+    - aws/codedeploy/appspec.json
   discard-paths: yes
 
 cache:
