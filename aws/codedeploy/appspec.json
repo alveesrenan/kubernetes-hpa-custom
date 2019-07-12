@@ -1,0 +1,47 @@
+{
+  "version": 0,
+  "Resources": [
+    {
+      "TargetService": {
+        "Type": "AWS::ECS::Service",
+        "Properties": {
+          "TaskDefinition": "arn:aws:ecs:us-east-1:006223355744:task-definition/service-kubernetes-hpa-custom:17",
+          "LoadBalancerInfo": {
+            "ContainerName": "kubernetes-hpa-custom",
+            "ContainerPort": 80
+          },
+          "PlatformVersion": "LATEST",
+          "NetworkConfiguration": {
+            "AwsvpcConfiguration": {
+              "Subnets": [
+                "subnet-001c114c94eea9327",
+                "subnet-09e9ba3538674f5b4"
+              ],
+              "SecurityGroups": [
+                "sg-0719528fe95d3dbf1"
+              ],
+              "AssignPublicIp": "DISABLED"
+            }
+          }
+        }
+      }
+    }
+  ]
+//  "Hooks": [
+//    {
+//      "BeforeInstall": "LambdaFunctionToValidateBeforeInstall"
+//    },
+//    {
+//      "AfterInstall": "LambdaFunctionToValidateAfterTraffic"
+//    },
+//    {
+//      "AfterAllowTestTraffic": "LambdaFunctionToValidateAfterTestTrafficStarts"
+//    },
+//    {
+//      "BeforeAllowTraffic": "LambdaFunctionToValidateBeforeAllowingProductionTraffic"
+//    },
+//    {
+//      "AfterAllowTraffic": "LambdaFunctionToValidateAfterAllowingProductionTraffic"
+//    }
+//  ]
+}

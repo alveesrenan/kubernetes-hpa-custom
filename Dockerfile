@@ -1,7 +1,9 @@
-FROM openjdk:8-jre-alpine
+FROM openjdk:8u212-jdk-slim
 
-ADD target/kubernetes-hpa-custom.jar /app.jar
+ARG JAR_FILE
 
-EXPOSE 8080
+COPY ${JAR_FILE} /app.jar
+
+EXPOSE 80
 
 ENTRYPOINT java -XX:+PrintFlagsFinal -Xmx256m -Dspring.profiles.active=${PROFILE} -Djava.security.egd=file:/dev/./urandom -jar app.jar

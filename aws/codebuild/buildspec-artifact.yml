@@ -26,31 +26,35 @@ phases:
     commands:
       - echo Build started and generating fat-jar from project on `date`...
       - mvn clean package -B -s ${SETTINGS_PATH} -DskipTests
-    finally:
-      - echo Generating quality code on sonarqube...
-      - mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B -s ${SETTINGS_PATH}
-
-  post_build:
-    commands:
-      - echo Entered the Post-Build phase and generating release artifact to jFrog on `date`...
-      - git config --global user.email "cicd@alveesrenan-dev.com"
-      - git config --global user.name "CICD Boot Release"
-      - aws s3 cp s3://alveesrenan-cicd-files . --recursive
-      - aws kms decrypt --ciphertext-blob fileb://config --output text --query Plaintext | base64 --decode > ~/.ssh/config
-      - aws kms decrypt --ciphertext-blob fileb://id_rsa --output text --query Plaintext | base64 --decode > ~/.ssh/id_rsa
-      - aws kms decrypt --ciphertext-blob fileb://id_rsa.pub --output text --query Plaintext | base64 --decode > ~/.ssh/id_rsa.pub
-      - chmod 600 ~/.ssh/config && chmod 600 ~/.ssh/id_rsa && chmod 644 ~/.ssh/id_rsa.pub
-      - touch ~/.ssh/known_hosts
-      - eval $(ssh-agent -s)
-      - ssh-keyscan -t rsa git-codecommit.us-east-1.amazonaws.com >> ~/.ssh/known_hosts
-      - git checkout ${CI_COMMIT_REF_NAME}
-      - git reset --hard origin/${CI_COMMIT_REF_NAME}
-    finally:
-      - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -s ${SETTINGS_PATH}
+#    finally:
+#      - echo Generating quality code on sonarqube...
+#      - mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B -s ${SETTINGS_PATH}
+#
+#  post_build:
+#    commands:
+#      - echo Entered the Post-Build phase and generating release artifact to jFrog on `date`...
+#      - git config --global user.email "cicd@alveesrenan-dev.com"
+#      - git config --global user.name "CICD Boot Release"
+#      - aws s3 cp s3://alveesrenan-cicd-files . --recursive
+#      - aws kms decrypt --ciphertext-blob fileb://config --output text --query Plaintext | base64 --decode > ~/.ssh/config
+#      - aws kms decrypt --ciphertext-blob fileb://id_rsa --output text --query Plaintext | base64 --decode > ~/.ssh/id_rsa
+#      - aws kms decrypt --ciphertext-blob fileb://id_rsa.pub --output text --query Plaintext | base64 --decode > ~/.ssh/id_rsa.pub
+#      - chmod 600 ~/.ssh/config && chmod 600 ~/.ssh/id_rsa && chmod 644 ~/.ssh/id_rsa.pub
+#      - touch ~/.ssh/known_hosts
+#      - eval $(ssh-agent -s)
+#      - ssh-keyscan -t rsa git-codecommit.us-east-1.amazonaws.com >> ~/.ssh/known_hosts
+#      - git checkout ${CI_COMMIT_REF_NAME}
+#      - git reset --hard origin/${CI_COMMIT_REF_NAME}
+#    finally:
+#      - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -s ${SETTINGS_PATH}
 
 artifacts:
   files:
     - target/kubernetes-hpa-custom.jar
+    - Dockerfile
+    - aws/ecs/task-definition.json
+    - aws/codebuild/buildspec-docker.yml
+    - aws/codedeploy/appspec.json
   discard-paths: yes
 
 cache:
