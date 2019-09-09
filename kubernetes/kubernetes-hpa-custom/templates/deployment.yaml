@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "kubernetes-hpa-custom.fullname" . }}
+  namespace: {{ template "kubernetes-hpa-custom.namespace" . }}
+  labels:
+    {{ include "kubernetes-hpa-custom.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "kubernetes-hpa-custom.name" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "kubernetes-hpa-custom.name" . }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecrets }}
+      containers:
+        - name: {{ .Values.application.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.deployment.containerPort }}
+          {{ include "kubernetes-hpa-custom.probes" .    | nindent 10 }}
+          {{ include "kubernetes-hpa-custom.envs" .      | nindent 10 }}
+          {{ include "kubernetes-hpa-custom.resources" . | nindent 10 }}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecrets }}

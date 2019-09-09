@@ -1,0 +1,13 @@
+apiVersion: v1
+appVersion: "1.0"
+version: 1.0.0
+name: kubernetes-hpa-custom
+description: A Helm chart for Kubernetes Hpa Custom app.
+maintainers:
+- name: Renan Alves
+  email: alvees.renan@gmail.com
+sources:
+- https://github.com/alveesrenan/kubernetes-hpa-custom
+keywords:
+ - kubernetes
+
