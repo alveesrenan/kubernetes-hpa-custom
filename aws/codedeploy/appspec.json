@@ -27,4 +27,21 @@
       }
     }
   ]
+//  "Hooks": [
+//    {
+//      "BeforeInstall": "LambdaFunctionToValidateBeforeInstall"
+//    },
+//    {
+//      "AfterInstall": "LambdaFunctionToValidateAfterTraffic"
+//    },
+//    {
+//      "AfterAllowTestTraffic": "LambdaFunctionToValidateAfterTestTrafficStarts"
+//    },
+//    {
+//      "BeforeAllowTraffic": "LambdaFunctionToValidateBeforeAllowingProductionTraffic"
+//    },
+//    {
+//      "AfterAllowTraffic": "LambdaFunctionToValidateAfterAllowingProductionTraffic"
+//    }
+//  ]
 }
