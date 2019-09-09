@@ -1,0 +1,299 @@
+stages:
+  - compile
+  - test
+  - quality-code
+  - quality-verify
+  - package
+  - artifactory
+  - registry-dev
+  - task-definition-dev
+  - deploy-dev
+  - deploy-dev-verify
+  - registry-prod
+  - task-definition-prod
+  - deploy-prod
+  - deploy-prod-verify
+  - git-remote
+
+variables:
+  SETTINGS_PATH: settings.xml
+  MAVEN_IMAGE: maven:3.5.2-jdk-8-alpine
+
+cache:
+  key: ${CI_COMMIT_REF_NAME}
+  paths:
+    - .m2/
+
+compile:
+  image: ${MAVEN_IMAGE}
+  stage: compile
+  script:
+    - mvn compile -B -s ${SETTINGS_PATH}
+  only:
+    - /^feature.*$/
+
+test:
+  image: ${MAVEN_IMAGE}
+  stage: test
+  artifacts:
+    paths:
+      - target/classes
+      - target/jacoco.exec
+    expire_in: 1 day
+  cache:
+    key: ${CI_COMMIT_REF_NAME}
+    policy: pull
+  script:
+    - mvn test -B -s ${SETTINGS_PATH}
+  only:
+    - /^feature.*$/
+
+test-it:
+  image: maven:3.5.2-jdk-8
+  stage: test
+  artifacts:
+    paths:
+      - target/classes
+      - target/jacoco-it.exec
+    expire_in: 1 day
+  cache:
+    key: ${CI_COMMIT_REF_NAME}
+    policy: pull
+  services:
+    - name: consul
+  script:
+    - mvn verify -B -DskipTest -s ${SETTINGS_PATH}
+  only:
+    - /^feature.*$/
+
+sonarqube:
+  image: ${MAVEN_IMAGE}
+  stage: quality-code
+  script:
+    - mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B -s ${SETTINGS_PATH}
+  dependencies:
+    - test
+    - test-it
+  only:
+    - /^feature.*$/
+
+package:
+  image: ${MAVEN_IMAGE}
+  stage: package
+  artifacts:
+    paths:
+      - target/*.jar
+    expire_in: 1 day
+  script:
+    - mvn package -B -DskipTests -s ${SETTINGS_PATH}
+  only:
+    - development
+    - master
+
+snapshot:
+  image: ${MAVEN_IMAGE}
+  stage: artifactory
+  script:
+    - mvn deploy -B -DskipTests -Dartifactory.url=${ARTIFACTORY_URL} -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN} -s ${SETTINGS_PATH}
+  only:
+    - development
+
+registry-dev:
+  image: renaalve/docker-aws-cli
+  stage: registry-dev
+  artifacts:
+    paths:
+      - image-version.txt
+    expire_in: 1 day
+  services:
+    - docker:dind
+  variables:
+    TAG: $CI_COMMIT_REF_NAME
+    IMAGE_NAME: ${AWS_ECR_SERVER_DEV}/${CI_PROJECT_NAME}
+    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_DEV}
+    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_DEV}
+    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_DEV}
+  before_script:
+    - TAG=$(echo "$CI_COMMIT_REF_NAME" | sed 's/\//\-/g')
+  script:
+    - export DOCKER_HOST='tcp://localhost:2375'
+    - $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
+    - docker build -f docker/Dockerfile --build-arg JAR_FILE=target/${CI_PROJECT_NAME}.jar -t ${IMAGE_NAME}:${TAG} .
+    - docker push ${IMAGE_NAME}:${TAG}
+    - touch image-version.txt && echo ${IMAGE_NAME}:${TAG} > image-version.txt
+  dependencies:
+    - package
+  only:
+    - development
+
+task-definition-dev:
+  image: renaalve/docker-aws-cli
+  stage: task-definition-dev
+  artifacts:
+    paths:
+      - task-definition-revision.txt
+    expire_in: 1 day
+  variables:
+    TASK_NAME: service-gateway
+    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_DEV}
+    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_DEV}
+    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_DEV}
+  script:
+    - IMAGE_VERSION=$(cat image-version.txt)
+    - TEMP_TASK_DEFINITION=$(jq '.containerDefinitions[0].image = $IMAGE_VERSION' --arg IMAGE_VERSION $IMAGE_VERSION aws/task-definition-dev.json)
+    - echo $TEMP_TASK_DEFINITION > aws/task-definition-dev.json
+    - REVISION_VERSION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition-dev.json  --region ${AWS_DEFAULT_REGION} | jq '.taskDefinition.revision')
+    - touch task-definition-revision.txt && echo ${TASK_NAME}:${REVISION_VERSION} > task-definition-revision.txt
+  dependencies:
+    - registry-dev
+  only:
+    - development
+
+deploy-dev:
+  image: mesosphere/aws-cli
+  stage: deploy-dev
+  variables:
+    SERVICE_NAME: srv-service-gateway
+    AWS_CLUSTER_NAME: edgeCluster
+    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_DEV}
+    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_DEV}
+    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_DEV}
+  script:
+    - TASK_DEFINITION=$(cat task-definition-revision.txt)
+    - aws ecs update-service --cluster ${AWS_CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${TASK_DEFINITION} --force-new-deployment --region ${AWS_DEFAULT_REGION}
+  environment:
+    name: development
+    url: http://public-lb-331733137.sa-east-1.elb.amazonaws.com/swagger-ui.html
+  dependencies:
+    - task-definition-dev
+  only:
+    - development
+  when: manual
+
+deploy-dev-verify:
+  image: alpine
+  stage: deploy-dev-verify
+  variables:
+    URL: http://public-lb-331733137.sa-east-1.elb.amazonaws.com/health
+  before_script:
+    - sleep 30
+  script:
+    - apk add curl bash --update
+    - curl -s https://raw.githubusercontent.com/fabiohbarbosa/aux-scripts/master/health.sh | bash -s ${URL} 200
+  environment:
+    name: production
+    url: http://public-lb-331733137.sa-east-1.elb.amazonaws.com/health
+  only:
+    - development
+  when: manual
+
+release:
+  image: ${MAVEN_IMAGE}
+  stage: artifactory
+  before_script:
+    - apk add git --update
+    - git config --global user.email "ci@atech.com.br"
+    - git config --global user.name "CI Atech Release"
+    - git checkout ${CI_COMMIT_REF_NAME}
+    - git reset --hard origin/${CI_COMMIT_REF_NAME}
+  script:
+    - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN} -s ${SETTINGS_PATH}
+  only:
+    - release
+
+registry-prod:
+  image: renaalve/docker-aws-cli
+  stage: registry-prod
+  artifacts:
+    paths:
+      - image-version.txt
+    expire_in: 1 day
+  services:
+    - docker:dind
+  variables:
+    TAG: latest
+    IMAGE_NAME: ${AWS_ECR_SERVER_PROD}/${CI_PROJECT_NAME}
+    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_PROD}
+    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_PROD}
+    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_PROD}
+  script:
+    - export DOCKER_HOST='tcp://localhost:2375'
+    - $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
+    - docker build -f docker/Dockerfile --build-arg JAR_FILE=target/${CI_PROJECT_NAME}.jar -t ${IMAGE_NAME}:${TAG} .
+    - docker push ${IMAGE_NAME}:${TAG}
+    - touch image-version.txt && echo ${IMAGE_NAME}:${TAG} > image-version.txt
+  dependencies:
+    - package
+  only:
+    - master
+
+task-definition-prod:
+  image: renaalve/docker-aws-cli
+  stage: task-definition-prod
+  artifacts:
+    paths:
+      - task-definition-revision.txt
+    expire_in: 1 day
+  variables:
+    TASK_NAME: tsk-service-gateway
+    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_PROD}
+    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_PROD}
+    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_PROD}
+  script:
+    - IMAGE_VERSION=$(cat image-version.txt)
+    - TEMP_TASK_DEFINITION=$(jq '.containerDefinitions[0].image = $IMAGE_VERSION' --arg IMAGE_VERSION $IMAGE_VERSION aws/task-definition-prod.json)
+    - echo $TEMP_TASK_DEFINITION > aws/task-definition-prod.json
+    - REVISION_VERSION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition-prod.json  --region ${AWS_DEFAULT_REGION} | jq '.taskDefinition.revision')
+    - touch task-definition-revision.txt && echo ${TASK_NAME}:${REVISION_VERSION} > task-definition-revision.txt
+  dependencies:
+    - registry-prod
+  only:
+    - master
+
+deploy-prod:
+  image: mesosphere/aws-cli
+  stage: deploy-prod
+  variables:
+    SERVICE_NAME: srv-service-gateway
+    AWS_CLUSTER_NAME: ahp-edge-cluster-POC
+    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_PROD}
+    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_PROD}
+    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_PROD}
+  script:
+    - TASK_DEFINITION=$(cat task-definition-revision.txt)
+    - aws ecs update-service --cluster ${AWS_CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${TASK_DEFINITION} --force-new-deployment --region ${AWS_DEFAULT_REGION}
+  environment:
+    name: production
+    url: http://alb-public-ahp-731146781.us-east-1.elb.amazonaws.com/swagger-ui.html
+  dependencies:
+    - task-definition-prod
+  only:
+    - master
+  when: manual
+
+deploy-prod-verify:
+  image: alpine
+  stage: deploy-prod-verify
+  variables:
+    URL: http://alb-public-ahp-731146781.us-east-1.elb.amazonaws.com/health
+  before_script:
+    - sleep 30
+  script:
+    - apk add curl bash --update
+    - curl -s https://raw.githubusercontent.com/fabiohbarbosa/aux-scripts/master/health.sh | bash -s ${URL} 200
+  environment:
+    name: production
+    url: http://alb-public-ahp-731146781.us-east-1.elb.amazonaws.com/health
+  only:
+    - master
+  when: manual
+
+embraer:
+  image: indiehosters/git
+  stage: git-remote
+  script:
+    - git remote add embraer https://${EMBRAER_AHEAD_USER}:${EMBRAER_AHEAD_PASSWORD}@git.embraer.com.br/scm/ahe/${CI_PROJECT_NAME}.git
+    - git push embraer master
+  only:
+   - master
+  allow_failure: true
