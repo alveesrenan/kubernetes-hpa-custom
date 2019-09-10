@@ -29,7 +29,7 @@
         <swagger.version>2.9.2</swagger.version>
 
 		<!-- URL's which will be overwritten by CI/CD -->
-		<sonar.url>https://sonar-b2b.atech.com.br/sonarqube</sonar.url>
+		<sonar.url />
 		<artifactory.url />
 	</properties>
 

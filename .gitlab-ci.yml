@@ -131,7 +131,7 @@ task-definition-dev:
       - task-definition-revision.txt
     expire_in: 1 day
   variables:
-    TASK_NAME: kubernetes-hpa-custom
+    TASK_NAME: kubernetes-hpa-custom-tsk
     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_DEV}
     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_DEV}
     AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_DEV}
@@ -139,7 +139,7 @@ task-definition-dev:
     - IMAGE_VERSION=$(cat image-version.txt)
     - TEMP_TASK_DEFINITION=$(jq '.containerDefinitions[0].image = $IMAGE_VERSION' --arg IMAGE_VERSION $IMAGE_VERSION aws/task-definition.json)
     - echo $TEMP_TASK_DEFINITION > aws/task-definition.json
-    - REVISION_VERSION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition.json  --region ${AWS_DEFAULT_REGION} | jq '.taskDefinition.revision')
+    - REVISION_VERSION=$(aws ecs register-task-definition --cli-input-json file://aws/ecs/task-definition.json  --region ${AWS_DEFAULT_REGION} | jq '.taskDefinition.revision')
     - touch task-definition-revision.txt && echo ${TASK_NAME}:${REVISION_VERSION} > task-definition-revision.txt
   dependencies:
     - registry-dev
@@ -240,7 +240,7 @@ task-definition-prod:
     - IMAGE_VERSION=$(cat image-version.txt)
     - TEMP_TASK_DEFINITION=$(jq '.containerDefinitions[0].image = $IMAGE_VERSION' --arg IMAGE_VERSION $IMAGE_VERSION aws/task-definition.json)
     - echo $TEMP_TASK_DEFINITION > aws/task-definition.json
-    - REVISION_VERSION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition.json  --region ${AWS_DEFAULT_REGION} | jq '.taskDefinition.revision')
+    - REVISION_VERSION=$(aws ecs register-task-definition --cli-input-json file://aws/ecs/task-definition.json  --region ${AWS_DEFAULT_REGION} | jq '.taskDefinition.revision')
     - touch task-definition-revision.txt && echo ${TASK_NAME}:${REVISION_VERSION} > task-definition-revision.txt
   dependencies:
     - registry-prod
