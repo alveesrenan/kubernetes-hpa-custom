@@ -27,7 +27,7 @@ compile:
   image: ${MAVEN_IMAGE}
   stage: compile
   script:
-    - mvn compile -B -s ${SETTINGS_PATH}
+    - mvn compile -B 
   only:
     - /^feature.*$/
 
@@ -43,7 +43,7 @@ test:
     key: ${CI_COMMIT_REF_NAME}
     policy: pull
   script:
-    - mvn test -B -s ${SETTINGS_PATH}
+    - mvn test -B 
   only:
     - /^feature.*$/
 
@@ -58,10 +58,8 @@ test-it:
   cache:
     key: ${CI_COMMIT_REF_NAME}
     policy: pull
-  services:
-    - name: consul
   script:
-    - mvn verify -B -DskipTest -s ${SETTINGS_PATH}
+    - mvn verify -B -DskipTest 
   only:
     - /^feature.*$/
 
@@ -69,7 +67,7 @@ sonarqube:
   image: ${MAVEN_IMAGE}
   stage: quality-code
   script:
-    - mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B -s ${SETTINGS_PATH}
+    - mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_LOGIN} -Dsonar.password=${SONARQUBE_PASSWORD} -B 
   dependencies:
     - test
     - test-it
@@ -84,7 +82,7 @@ package:
       - target/*.jar
     expire_in: 1 day
   script:
-    - mvn package -B -DskipTests -s ${SETTINGS_PATH}
+    - mvn package -B -DskipTests 
   only:
     - development
     - master
@@ -93,7 +91,7 @@ snapshot:
   image: ${MAVEN_IMAGE}
   stage: artifactory
   script:
-    - mvn deploy -B -DskipTests -Dartifactory.url=${ARTIFACTORY_URL} -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN} -s ${SETTINGS_PATH}
+    - mvn deploy -B -DskipTests -Dartifactory.url=${ARTIFACTORY_URL} -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN} 
   only:
     - development
 
@@ -196,7 +194,7 @@ release:
     - git checkout ${CI_COMMIT_REF_NAME}
     - git reset --hard origin/${CI_COMMIT_REF_NAME}
   script:
-    - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN} -s ${SETTINGS_PATH}
+    - mvn release:clean release:prepare release:perform -B -DscmCommentPrefix="[maven-release] [skip ci] " -Darguments="-DskipTests -Dartifactory.url=${ARTIFACTORY_URL}" -Drelease.scm.user=${RELEASE_SCM_USER} -Drelease.scm.token=${RELEASE_SCM_TOKEN} 
   only:
     - release
 

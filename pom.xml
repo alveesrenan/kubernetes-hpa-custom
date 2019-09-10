@@ -33,19 +33,6 @@
 		<artifactory.url />
 	</properties>
 
-	<distributionManagement>
-		<repository>
-			<id>nexus-releases</id>
-			<name>Nexus Releases</name>
-			<url>${artifactory.url}/libs-release-local</url>
-		</repository>
-		<snapshotRepository>
-			<id>nexus-snapshots</id>
-			<name>Nexus Snapshots</name>
-			<url>${artifactory.url}/libs-snapshot-local</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 	<dependencies>
 
 		<dependency>
