@@ -15,11 +15,24 @@
 	</parent>
 
     <scm>
-        <connection>scm:git:https://${release.scm.user}:${release.scm.token}@github.com/alveesrenan/kubernetes-hpa-custom.git</connection>
-        <developerConnection>scm:git:https://${release.scm.user}:${release.scm.token}@github.com/alveesrenan/kubernetes-hpa-custom.git</developerConnection>
-        <url>https://github.com/alveesrenan/kubernetes-hpa-custom</url>
+        <connection>scm:git:https://${release.scm.user}:${release.scm.token}@gitlab.com/alveesrenan-demos/kubernetes-hpa-custom.git</connection>
+        <developerConnection>scm:git:https://${release.scm.user}:${release.scm.token}@gitlab.com/alveesrenan-demos/kubernetes-hpa-custom.git</developerConnection>
+        <url>https://gitlab.com/alveesrenan-demos/kubernetes-hpa-custom.git</url>
         <tag>HEAD</tag>
     </scm>
+
+	<distributionManagement>
+		<repository>
+			<id>nexus-releases</id>
+			<name>Nexus Releases</name>
+			<url>${artifactory.url}/libs-release-local</url>
+		</repository>
+		<snapshotRepository>
+			<id>nexus-snapshots</id>
+			<name>Nexus Snapshots</name>
+			<url>${artifactory.url}/libs-snapshot-local</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<properties>
 		<!-- General dependencies -->
