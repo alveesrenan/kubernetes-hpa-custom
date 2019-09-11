@@ -113,7 +113,6 @@ registry-dev:
   before_script:
     - TAG=$(echo "$CI_COMMIT_REF_NAME" | sed 's/\//\-/g')
   script:
-    - export DOCKER_HOST='tcp://localhost:2375'
     - eval $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker build -f Dockerfile --build-arg JAR_FILE=target/${CI_PROJECT_NAME}.jar -t ${IMAGE_NAME}:${TAG} .
     - docker push ${IMAGE_NAME}:${TAG}
@@ -214,7 +213,6 @@ registry-prod:
     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_PROD}
     AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_PROD}
   script:
-    - export DOCKER_HOST='tcp://localhost:2375'
     - $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
     - docker build -f Dockerfile --build-arg JAR_FILE=target/${CI_PROJECT_NAME}.jar -t ${IMAGE_NAME}:${TAG} .
     - docker push ${IMAGE_NAME}:${TAG}
