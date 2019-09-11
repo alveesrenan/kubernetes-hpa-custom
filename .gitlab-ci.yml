@@ -234,14 +234,14 @@ deploy-prod:
   image: renaalve/docker-aws-cli
   stage: deploy-prod
   variables:
-    SERVICE_NAME: srv-kubernetes-hpa-custom
-    AWS_CLUSTER_NAME: alveesrenan-ecs-dev-cluster
+    SERVICE_NAME: srv-kubernetes-hpa-custom-prd
+    AWS_CLUSTER_NAME: alveesrenan-ecs-prd-cluster
   script:
     - TASK_DEFINITION=$(cat task-definition-revision.txt)
     - aws ecs update-service --cluster ${AWS_CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${TASK_DEFINITION} --force-new-deployment --region ${AWS_DEFAULT_REGION}
   environment:
     name: production
-    url: http://alveesrenan-ecs-dev-cluster-lb-445351502.us-east-1.elb.amazonaws.com/swagger-ui.html
+    url: http://alveesrenan-ecs-prd-cluster-lb-1159101872.us-east-1.elb.amazonaws.com/swagger-ui.html
   dependencies:
     - task-definition-prod
   only:
@@ -252,7 +252,7 @@ deploy-prod-verify:
   image: alpine
   stage: deploy-prod-verify
   variables:
-    URL: http://alveesrenan-ecs-dev-cluster-lb-445351502.us-east-1.elb.amazonaws.com/actuator/health
+    URL: http://alveesrenan-ecs-prd-cluster-lb-1159101872.us-east-1.elb.amazonaws.com/actuator/health
   before_script:
     - sleep 30
   script:
@@ -260,7 +260,7 @@ deploy-prod-verify:
     - curl -s https://raw.githubusercontent.com/fabiohbarbosa/aux-scripts/master/health.sh | bash -s ${URL} 200
   environment:
     name: production
-    url: http://alveesrenan-ecs-dev-cluster-lb-445351502.us-east-1.elb.amazonaws.com/actuator/health
+    url: http://alveesrenan-ecs-prd-cluster-lb-1159101872.us-east-1.elb.amazonaws.com/actuator/health
   only:
     - master
   when: manual
