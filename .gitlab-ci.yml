@@ -114,7 +114,7 @@ registry-dev:
     - TAG=$(echo "$CI_COMMIT_REF_NAME" | sed 's/\//\-/g')
   script:
     - export DOCKER_HOST='tcp://localhost:2375'
-    - $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
+    - eval $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker build -f Dockerfile --build-arg JAR_FILE=target/${CI_PROJECT_NAME}.jar -t ${IMAGE_NAME}:${TAG} .
     - docker push ${IMAGE_NAME}:${TAG}
     - touch image-version.txt && echo ${IMAGE_NAME}:${TAG} > image-version.txt
