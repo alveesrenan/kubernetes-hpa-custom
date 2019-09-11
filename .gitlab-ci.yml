@@ -115,7 +115,7 @@ registry-dev:
   script:
     - export DOCKER_HOST='tcp://localhost:2375'
     - $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
-    - docker build -f docker/Dockerfile --build-arg JAR_FILE=target/${CI_PROJECT_NAME}.jar -t ${IMAGE_NAME}:${TAG} .
+    - docker build -f Dockerfile --build-arg JAR_FILE=target/${CI_PROJECT_NAME}.jar -t ${IMAGE_NAME}:${TAG} .
     - docker push ${IMAGE_NAME}:${TAG}
     - touch image-version.txt && echo ${IMAGE_NAME}:${TAG} > image-version.txt
   dependencies:
@@ -137,8 +137,8 @@ task-definition-dev:
     AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_DEV}
   script:
     - IMAGE_VERSION=$(cat image-version.txt)
-    - TEMP_TASK_DEFINITION=$(jq '.containerDefinitions[0].image = $IMAGE_VERSION' --arg IMAGE_VERSION $IMAGE_VERSION aws/task-definition.json)
-    - echo $TEMP_TASK_DEFINITION > aws/task-definition.json
+    - TEMP_TASK_DEFINITION=$(jq '.containerDefinitions[0].image = $IMAGE_VERSION' --arg IMAGE_VERSION $IMAGE_VERSION aws/ecs/task-definition.json)
+    - echo $TEMP_TASK_DEFINITION > aws/ecs/task-definition.json
     - REVISION_VERSION=$(aws ecs register-task-definition --cli-input-json file://aws/ecs/task-definition.json  --region ${AWS_DEFAULT_REGION} | jq '.taskDefinition.revision')
     - touch task-definition-revision.txt && echo ${TASK_NAME}:${REVISION_VERSION} > task-definition-revision.txt
   dependencies:
@@ -160,7 +160,7 @@ deploy-dev:
     - aws ecs update-service --cluster ${AWS_CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${TASK_DEFINITION} --force-new-deployment --region ${AWS_DEFAULT_REGION}
   environment:
     name: development
-    url: http://public-lb-331733137.sa-east-1.elb.amazonaws.com/swagger-ui.html
+    url: http://alveesrenan-ecs-dev-cluster-lb-445351502.us-east-1.elb.amazonaws.com/swagger-ui.html
   dependencies:
     - task-definition-dev
   only:
@@ -171,15 +171,15 @@ deploy-dev-verify:
   image: alpine
   stage: deploy-dev-verify
   variables:
-    URL: http://public-lb-331733137.sa-east-1.elb.amazonaws.com/health
+    URL: http://alveesrenan-ecs-dev-cluster-lb-445351502.us-east-1.elb.amazonaws.com/actuator/health
   before_script:
     - sleep 30
   script:
     - apk add curl bash --update
     - curl -s https://raw.githubusercontent.com/fabiohbarbosa/aux-scripts/master/health.sh | bash -s ${URL} 200
   environment:
-    name: production
-    url: http://public-lb-331733137.sa-east-1.elb.amazonaws.com/health
+    name: development
+    url: http://alveesrenan-ecs-dev-cluster-lb-445351502.us-east-1.elb.amazonaws.com/actuator/health
   only:
     - development
   when: manual
@@ -216,7 +216,7 @@ registry-prod:
   script:
     - export DOCKER_HOST='tcp://localhost:2375'
     - $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
-    - docker build -f docker/Dockerfile --build-arg JAR_FILE=target/${CI_PROJECT_NAME}.jar -t ${IMAGE_NAME}:${TAG} .
+    - docker build -f Dockerfile --build-arg JAR_FILE=target/${CI_PROJECT_NAME}.jar -t ${IMAGE_NAME}:${TAG} .
     - docker push ${IMAGE_NAME}:${TAG}
     - touch image-version.txt && echo ${IMAGE_NAME}:${TAG} > image-version.txt
   dependencies:
@@ -232,14 +232,14 @@ task-definition-prod:
       - task-definition-revision.txt
     expire_in: 1 day
   variables:
-    TASK_NAME: tsk-service-gateway
+    TASK_NAME: kubernetes-hpa-custom-tsk
     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_PROD}
     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_PROD}
     AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_PROD}
   script:
     - IMAGE_VERSION=$(cat image-version.txt)
-    - TEMP_TASK_DEFINITION=$(jq '.containerDefinitions[0].image = $IMAGE_VERSION' --arg IMAGE_VERSION $IMAGE_VERSION aws/task-definition.json)
-    - echo $TEMP_TASK_DEFINITION > aws/task-definition.json
+    - TEMP_TASK_DEFINITION=$(jq '.containerDefinitions[0].image = $IMAGE_VERSION' --arg IMAGE_VERSION $IMAGE_VERSION aws/ecs/task-definition.json)
+    - echo $TEMP_TASK_DEFINITION > aws/ecs/task-definition.json
     - REVISION_VERSION=$(aws ecs register-task-definition --cli-input-json file://aws/ecs/task-definition.json  --region ${AWS_DEFAULT_REGION} | jq '.taskDefinition.revision')
     - touch task-definition-revision.txt && echo ${TASK_NAME}:${REVISION_VERSION} > task-definition-revision.txt
   dependencies:
@@ -251,8 +251,8 @@ deploy-prod:
   image: mesosphere/aws-cli
   stage: deploy-prod
   variables:
-    SERVICE_NAME: srv-service-gateway
-    AWS_CLUSTER_NAME: ahp-edge-cluster-POC
+    SERVICE_NAME: srv-kubernetes-hpa-custom
+    AWS_CLUSTER_NAME: alveesrenan-ecs-dev-cluster
     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_PROD}
     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_PROD}
     AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_PROD}
@@ -261,7 +261,7 @@ deploy-prod:
     - aws ecs update-service --cluster ${AWS_CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${TASK_DEFINITION} --force-new-deployment --region ${AWS_DEFAULT_REGION}
   environment:
     name: production
-    url: http://alb-public-ahp-731146781.us-east-1.elb.amazonaws.com/swagger-ui.html
+    url: http://alveesrenan-ecs-dev-cluster-lb-445351502.us-east-1.elb.amazonaws.com/swagger-ui.html
   dependencies:
     - task-definition-prod
   only:
@@ -272,7 +272,7 @@ deploy-prod-verify:
   image: alpine
   stage: deploy-prod-verify
   variables:
-    URL: http://alb-public-ahp-731146781.us-east-1.elb.amazonaws.com/health
+    URL: http://alveesrenan-ecs-dev-cluster-lb-445351502.us-east-1.elb.amazonaws.com/actuator/health
   before_script:
     - sleep 30
   script:
@@ -280,7 +280,7 @@ deploy-prod-verify:
     - curl -s https://raw.githubusercontent.com/fabiohbarbosa/aux-scripts/master/health.sh | bash -s ${URL} 200
   environment:
     name: production
-    url: http://alb-public-ahp-731146781.us-east-1.elb.amazonaws.com/health
+    url: http://alveesrenan-ecs-dev-cluster-lb-445351502.us-east-1.elb.amazonaws.com/actuator/health
   only:
     - master
   when: manual
