@@ -106,14 +106,11 @@ registry-dev:
     - docker:dind
   variables:
     TAG: $CI_COMMIT_REF_NAME
-    IMAGE_NAME: ${AWS_ECR_SERVER_DEV}/${CI_PROJECT_NAME}
-    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_DEV}
-    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_DEV}
-    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_DEV}
+    IMAGE_NAME: ${AWS_ECR_SERVER}/${CI_PROJECT_NAME}
   before_script:
     - TAG=$(echo "$CI_COMMIT_REF_NAME" | sed 's/\//\-/g')
   script:
-    - eval $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+    - eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
     - docker build -f Dockerfile --build-arg JAR_FILE=target/${CI_PROJECT_NAME}.jar -t ${IMAGE_NAME}:${TAG} .
     - docker push ${IMAGE_NAME}:${TAG}
     - touch image-version.txt && echo ${IMAGE_NAME}:${TAG} > image-version.txt
@@ -131,9 +128,6 @@ task-definition-dev:
     expire_in: 1 day
   variables:
     TASK_NAME: kubernetes-hpa-custom-tsk
-    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_DEV}
-    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_DEV}
-    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_DEV}
   script:
     - IMAGE_VERSION=$(cat image-version.txt)
     - TEMP_TASK_DEFINITION=$(jq '.containerDefinitions[0].image = $IMAGE_VERSION' --arg IMAGE_VERSION $IMAGE_VERSION aws/ecs/task-definition.json)
@@ -146,14 +140,11 @@ task-definition-dev:
     - development
 
 deploy-dev:
-  image: mesosphere/aws-cli
+  image: renaalve/docker-aws-cli
   stage: deploy-dev
   variables:
     SERVICE_NAME: srv-kubernetes-hpa-custom
     AWS_CLUSTER_NAME: alveesrenan-ecs-dev-cluster
-    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_DEV}
-    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_DEV}
-    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_DEV}
   script:
     - TASK_DEFINITION=$(cat task-definition-revision.txt)
     - aws ecs update-service --cluster ${AWS_CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${TASK_DEFINITION} --force-new-deployment --region ${AWS_DEFAULT_REGION}
@@ -208,10 +199,7 @@ registry-prod:
     - docker:dind
   variables:
     TAG: latest
-    IMAGE_NAME: ${AWS_ECR_SERVER_PROD}/${CI_PROJECT_NAME}
-    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_PROD}
-    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_PROD}
-    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_PROD}
+    IMAGE_NAME: ${AWS_ECR_SERVER}/${CI_PROJECT_NAME}
   script:
     - $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
     - docker build -f Dockerfile --build-arg JAR_FILE=target/${CI_PROJECT_NAME}.jar -t ${IMAGE_NAME}:${TAG} .
@@ -231,9 +219,6 @@ task-definition-prod:
     expire_in: 1 day
   variables:
     TASK_NAME: kubernetes-hpa-custom-tsk
-    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_PROD}
-    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_PROD}
-    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_PROD}
   script:
     - IMAGE_VERSION=$(cat image-version.txt)
     - TEMP_TASK_DEFINITION=$(jq '.containerDefinitions[0].image = $IMAGE_VERSION' --arg IMAGE_VERSION $IMAGE_VERSION aws/ecs/task-definition.json)
@@ -246,14 +231,11 @@ task-definition-prod:
     - master
 
 deploy-prod:
-  image: mesosphere/aws-cli
+  image: renaalve/docker-aws-cli
   stage: deploy-prod
   variables:
     SERVICE_NAME: srv-kubernetes-hpa-custom
     AWS_CLUSTER_NAME: alveesrenan-ecs-dev-cluster
-    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID_PROD}
-    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY_PROD}
-    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION_PROD}
   script:
     - TASK_DEFINITION=$(cat task-definition-revision.txt)
     - aws ecs update-service --cluster ${AWS_CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${TASK_DEFINITION} --force-new-deployment --region ${AWS_DEFAULT_REGION}
