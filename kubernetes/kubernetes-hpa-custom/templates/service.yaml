@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "kubernetes-hpa-custom.fullname" . }}
-  namespace: {{ template "kubernetes-hpa-custom.namespace" . }}
+  name: {{ include "kubernetes-hpa-custom.fullname" . }}
+  namespace: {{ include "kubernetes-hpa-custom.namespace" . }}
   labels:
     {{ include "kubernetes-hpa-custom.labels" . | nindent 4 }}
 spec:
@@ -10,7 +10,9 @@ spec:
   selector:
     app.kubernetes.io/name: {{ include "kubernetes-hpa-custom.name" . }}
   ports:
-    - name: {{ .Values.service.name }}
-      port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.targetPort }}
-      protocol: TCP
+  {{- range $port := .Values.service.ports }}
+    - name: {{ $port.name }}
+      port: {{ $port.port }}
+      targetPort: {{ $port.targetPort }}
+      protocol: {{ $port.protocol }}
+  {{ end -}}

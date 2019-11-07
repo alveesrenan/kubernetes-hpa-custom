@@ -47,52 +47,10 @@ Common labels
 {{- define "kubernetes-hpa-custom.labels" -}}
 app.kubernetes.io/name: {{ include "kubernetes-hpa-custom.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/component: {{ .Values.application.component }}
+app.kubernetes.io/component: {{ .Values.deployment.component }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 helm.sh/chart: {{ include "kubernetes-hpa-custom.chart" . }}
-{{- end -}}
-
-{{/*
-Deployment probes.
-*/}}
-{{- define "kubernetes-hpa-custom.probes" -}}
-readinessProbe:
-  httpGet:
-    path: /actuator/health
-    port: {{ .Values.deployment.containerPort }}
-  initialDelaySeconds: 15
-  periodSeconds: 10
-  failureThreshold: 3
-livenessProbe:
-  httpGet:
-    path: /actuator/health
-    port: {{ .Values.deployment.containerPort }}
-  initialDelaySeconds: 10
-  periodSeconds: 10
-  failureThreshold: 3
-{{- end -}}
-
-{{/*
-Deployment environments.
-*/}}
-{{- define "kubernetes-hpa-custom.envs" -}}
-env:
-  - name: PROFILE
-    value: dev
-  - name: JAVA_ENV
-    value: dev
-  - name: LOG_LEVEL
-    value: INFO
-{{- end -}}
-
-{{- define "kubernetes-hpa-custom.resources" -}}
-resources:
-  requests:
-    memory: 400Mi
-    cpu: 0.1
-  limits:
-    memory: 512Mi
 {{- end -}}

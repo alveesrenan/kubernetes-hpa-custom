@@ -1,15 +1,15 @@
-{{- if .Values.hpa.enabled -}}
+{{- if .Values.hpa.enabled }}
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ template "kubernetes-hpa-custom.fullname" . }}-hpa
-  namespace: {{ template "kubernetes-hpa-custom.namespace" . }}
+  name: {{ include "kubernetes-hpa-custom.fullname" . }}-hpa
+  namespace: {{ include "kubernetes-hpa-custom.namespace" . }}
   labels:
     {{ include "kubernetes-hpa-custom.labels" . | nindent 4 }}
   {{- if .Values.hpa.annotations }}
   annotations:
     {{ toYaml .Values.hpa.annotations | nindent 4}}
-  {{- end }}
+  {{ end -}}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -26,4 +26,4 @@ spec:
       resource:
         name: memory
         targetAverageUtilization: {{ .Values.hpa.metrics.targetMemoryAverageUtilization }}
-{{- end -}}
+{{ end -}}

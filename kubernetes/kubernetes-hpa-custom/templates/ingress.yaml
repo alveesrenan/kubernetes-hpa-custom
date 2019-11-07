@@ -1,15 +1,15 @@
-{{- if .Values.ingress.enabled -}}
+{{- if .Values.ingress.enabled }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ template "kubernetes-hpa-custom.fullname" . }}
-  namespace: {{ template "kubernetes-hpa-custom.namespace" . }}
+  name: {{ include "kubernetes-hpa-custom.fullname" . }}
+  namespace: {{ include "kubernetes-hpa-custom.namespace" . }}
   labels:
     {{ include "kubernetes-hpa-custom.labels" . | nindent 4 }}
   {{- if .Values.ingress.annotations }}
   annotations:
     {{ toYaml .Values.ingress.annotations | nindent 4}}
-  {{- end }}
+  {{ end -}}
 spec:
   rules:
     {{- range .Values.ingress.hosts }}
@@ -20,5 +20,5 @@ spec:
             backend:
               serviceName: {{ .serviceName }}
               servicePort: {{ .servicePort }}
-  {{- end -}}
-{{- end -}}
+  {{ end -}}
+{{ end -}}

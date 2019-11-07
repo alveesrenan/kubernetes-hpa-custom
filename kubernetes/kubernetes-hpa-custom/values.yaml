@@ -1,47 +1,99 @@
-nameOverride: "kubernetes-hpa-custom"
-fullnameOverride: "kubernetes-hpa-custom"
-
-replicaCount: 1
-
-application:
-  name: kubernetes-hpa-custom
-  component_type: microservice
+fullnameOverride: kubernetes-hpa-custom
 
 image:
   repository: renaalve/kubernetes-hpa-custom
   tag: latest
+  pullsecret: hub.docker.com
   pullPolicy: Always
-  pullSecrets: hub.docker.com
 
+## Service k8s resource
+## Ref: https://kubernetes.io/docs/concepts/services-networking/service/
+##
+service:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+
+## Deployment k8s resource
+## Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+##
 deployment:
   name: kubernetes-hpa-custom
   containerPort: 8080
+  component: k8s-microservice
 
-service:
-  type: ClusterIP
-  port: 80
-  targetPort: 8080
-  name: http
+  replicaCount: 1
 
+  ## Additional server container environment variables
+  ## Ref: https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/
+  ##
+  env:
+    SPRING_PROFILE: dev
+    JAVA_ENV: dev
+    LOG_LEVEL: INFO
+
+  ## Additional server container environment variables as secrets
+  ## Ref: https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data
+  ##
+  envFromSecret: []
+    # - name: secret_name
+    #   keys:
+    #     env_name: secret_key
+
+  ## Additional server container environment variables as configmaps
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/
+  ##
+  envFromConfigMap: []
+    # - name: configmap_name
+    #   keys:
+    #     env_name: configmap_key
+
+  ## Additional server container environment variables
+  ## Ref: https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/
+  ##
+  resources:
+    requests:
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+  ## liveness and readiness probe setup
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  ##
+  livenessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    failureThreshold: 3
+    path: /actuator/health
+
+  readinessProbe:
+    initialDelaySeconds: 15
+    periodSeconds: 15
+    failureThreshold: 3
+    path: /actuator/health
+
+## Ingress k8s resource
+## Ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
+##
 ingress:
   enabled: false
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    kubernetes.io/ingress.allow-http: "true"
-    nginx.ingress.kubernetes.io/add-base-url: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-  hosts:
-    - name: app1.alveesrenan.com
-      path: /
-      serviceName: kubernetes-hpa-custom
-      servicePort: 80
+  hosts: []
+    # - name: example.com
+    #   path: /
+    #   serviceName: kubernetes-hpa-custom
+    #   servicePort: 80
 
+## Horizontal Pod Autoscaler k8s resource
+## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+##
 hpa:
   enabled: false
   annotations: {}
   minReplicas: 1
-  maxReplicas: 10
+  maxReplicas: 4
   metrics:
-    targetCpuAverageUtilization: 50
+    targetCpuAverageUtilization: 75
     targetMemoryAverageUtilization: 80
