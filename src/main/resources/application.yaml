@@ -1,4 +1,4 @@
-server.port: 80
+server.port: 8080
 
 spring:
   application.name: kubernetes-hpa-custom
@@ -7,8 +7,12 @@ spring:
 management:
   metrics:
     tags:
-      application: ${spring.application.name}:${random.uuid}
+      application: ${spring.application.name}
+      application-uuid: ${spring.application.name}:${random.uuid}
   endpoints:
     web:
       exposure:
         include: ["health", "info", "metrics", "prometheus"]
+  endpoint:
+    health:
+      show-details: ALWAYS

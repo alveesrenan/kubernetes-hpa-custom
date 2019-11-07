@@ -70,7 +70,7 @@ livenessProbe:
   httpGet:
     path: /actuator/health
     port: {{ .Values.deployment.containerPort }}
-  initialDelaySeconds: 15
+  initialDelaySeconds: 10
   periodSeconds: 10
   failureThreshold: 3
 {{- end -}}
