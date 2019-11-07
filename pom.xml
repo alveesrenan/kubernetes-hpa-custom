@@ -25,12 +25,12 @@
 		<repository>
 			<id>nexus-releases</id>
 			<name>Nexus Releases</name>
-			<url>https://artifactory-b2b.atech.com.br/artifactory/libs-release-local</url>
+			<url>${artifactory.url}/repository/maven-releases</url>
 		</repository>
 		<snapshotRepository>
 			<id>nexus-snapshots</id>
 			<name>Nexus Snapshots</name>
-			<url>https://artifactory-b2b.atech.com.br/artifactory/libs-snapshot-local</url>
+			<url>${artifactory.url}/repository/maven-snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 
